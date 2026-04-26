@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply m-0 bg-[#f4f9ff] font-sans text-slate-800 antialiased;
+  }
+}
+
+@layer utilities {
+  .hero-bg {
+    background:
+      radial-gradient(circle at 15% 5%, rgba(253, 186, 116, 0.25), transparent 35%),
+      radial-gradient(circle at 85% 25%, rgba(59, 130, 246, 0.12), transparent 40%),
+      linear-gradient(180deg, #fefcf5 0%, #f4f9ff 60%, #f4f9ff 100%);
+  }
+
+  .fade-up {
+    animation: fade-up 800ms ease both;
+  }
+
+  .float-card {
+    animation: float-card 5.5s ease-in-out infinite;
+  }
+
+  .float-card-slow {
+    animation: float-card-slow 7s ease-in-out infinite;
+  }
+
+  .pulse-soft {
+    animation: pulse-soft 3.2s ease-in-out infinite;
+  }
+
+  .login-float {
+    animation: login-float 4.8s ease-in-out infinite;
+  }
+
+  .login-orbit {
+    animation: login-orbit 9s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  .error-pop {
+    animation: error-pop 360ms ease-out both;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-card {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-card-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.15);
+  }
+}
+
+@keyframes login-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes login-orbit {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(0.8deg);
+  }
+  75% {
+    transform: rotate(-0.8deg);
+  }
+}
+
+@keyframes error-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(0) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up,
+  .float-card,
+  .float-card-slow,
+  .pulse-soft,
+  .login-float,
+  .login-orbit,
+  .error-pop {
+    animation: none !important;
+  }
+}
