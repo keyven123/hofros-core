@@ -15,9 +15,13 @@ function getPublicOrigin() {
 }
 
 function buildUrl(path) {
-  const normalized = path.startsWith('/') ? path : `/${path}`
+  let normalized = path.startsWith('/') ? path : `/${path}`
   const base = getApiBase()
   if (base) {
+    // Avoid double-prefix when base already includes version segment (e.g. base: /api/v1 + path: /v1/...)
+    if (base.endsWith('/api/v1') && normalized.startsWith('/v1/')) {
+      normalized = normalized.slice(3) // drop leading "/v1"
+    }
     return `${base}${normalized}`
   }
   return `/api${normalized}`

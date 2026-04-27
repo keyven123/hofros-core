@@ -4,7 +4,8 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const wsDir = path.resolve(__dirname, '../ws')
+// Load VITE_* from hofros-core/.env (project root)
+const envDir = path.resolve(__dirname)
 
 const DEFAULT_LARAVEL = 'http://127.0.0.1:8000'
 
@@ -42,10 +43,10 @@ function devProxyTarget(mode, root) {
 // Split frontend API host: set VITE_API_BASE_URL in ws/.env.
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const proxyTarget = devProxyTarget(mode, wsDir)
+  const proxyTarget = devProxyTarget(mode, envDir)
   return {
     plugins: [react()],
-    envDir: wsDir,
+    envDir,
     server: {
       proxy: {
         '/api': {
