@@ -4,12 +4,15 @@ function getApiBase() {
   return (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 }
 
-/** App origin for /storage (not the /api prefix). */
+/** App origin for /storage (not the /api prefix). Empty means same-origin (Vite proxy). */
 function getPublicOrigin() {
   const base = getApiBase()
-  if (!base) return ''
+  if (!base || base.startsWith('/')) return ''
+  if (base.endsWith('/api/v1')) {
+    return base.slice(0, -'/api/v1'.length)
+  }
   if (base.endsWith('/api')) {
-    return base.slice(0, -4)
+    return base.slice(0, -'/api'.length)
   }
   return base
 }
@@ -75,16 +78,17 @@ function firstValidationMessage(body) {
 }
 
 export async function apiFetch(path, options = {}) {
-  const token = getApiToken()
-  const hasBody = options.body !== undefined && options.body !== null
+  const { authToken, ...fetchOptions } = options
+  const token = authToken !== undefined ? authToken : getApiToken()
+  const hasBody = fetchOptions.body !== undefined && fetchOptions.body !== null
   const isFormData =
-    typeof FormData !== 'undefined' && hasBody && options.body instanceof FormData
+    typeof FormData !== 'undefined' && hasBody && fetchOptions.body instanceof FormData
   const headers = {
     Accept: 'application/json',
-    ...(hasBody && !isFormData && options.headers?.['Content-Type'] === undefined
+    ...(hasBody && !isFormData && fetchOptions.headers?.['Content-Type'] === undefined
       ? { 'Content-Type': 'application/json' }
       : {}),
-    ...options.headers,
+    ...fetchOptions.headers,
   }
 
   if (isFormData) {
@@ -98,7 +102,7 @@ export async function apiFetch(path, options = {}) {
   let response
   try {
     response = await fetch(buildUrl(path), {
-      ...options,
+      ...fetchOptions,
       headers,
     })
   } catch (cause) {

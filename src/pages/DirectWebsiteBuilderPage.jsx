@@ -162,7 +162,7 @@ function DirectWebsiteBuilderPage() {
   }
 
   return (
-    <div className="min-h-full bg-white">
+    <div className="flex min-h-full w-full min-w-0 flex-col bg-white">
       <div className="border-b border-blue-100 bg-gradient-to-r from-[#fffbeb] via-white to-[#eff6ff] px-4 py-6 md:px-8">
         <nav className="text-sm font-medium text-slate-500">
           <Link to="/bookingportals" className="text-blue-600 hover:text-blue-800">

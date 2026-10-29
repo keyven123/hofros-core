@@ -22,5 +22,7 @@ export function emptyGuestPortalLayout() {
     },
     showReviews: true,
     showMap: true,
+    allowGuestMessages: true,
+    designTemplate: '',
   }
 }

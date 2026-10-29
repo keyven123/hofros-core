@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import GuestPortalChat from '../components/guestPortal/GuestPortalChat'
 import GuestPortalMicrosite from '../components/guestPortal/GuestPortalMicrosite'
-import { DEFAULT_HERO_BANNER_URL, HERO_BANNER_PRESETS } from '../data/heroBannerPresets'
+import { DESIGN_TEMPLATES, TEMPLATE_TIERS, resolveDesignTemplate } from '../data/designTemplates'
+import { DEFAULT_HERO_BANNER_URL, HERO_BANNER_PRESETS, resolveHeroBannerUrl } from '../data/heroBannerPresets'
 import { apiFetch } from '../utils/api'
 import { emptyGuestPortalLayout } from '../utils/guestPortalLayout'
 
@@ -98,6 +100,346 @@ function DragHandleIcon({ className }) {
   )
 }
 
+function SketchCrown({ className = 'h-3 w-4' }) {
+  return (
+    <svg viewBox="0 0 48 32" className={`${className} text-[#e8c872]`} fill="currentColor" aria-hidden="true">
+      <path d="M2 24 8.5 11.5 16 18 24 3l8 15 7.5-6.5L46 24H2z" />
+      <path d="M4 26.5h40V30H4z" />
+    </svg>
+  )
+}
+
+function TemplateSketch({ kind }) {
+  if (kind === 'royal') {
+    return (
+      <div className="relative flex h-14 flex-col items-center justify-end overflow-hidden rounded-md bg-[#1a2744] pb-1.5">
+        <SketchCrown />
+        <div className="mt-1 h-px w-6 bg-[#e8c872]" />
+        <div className="mt-1 h-2 w-10 rounded-full bg-white/90" />
+      </div>
+    )
+  }
+  if (kind === 'palace') {
+    return (
+      <div className="flex h-14 overflow-hidden rounded-md bg-[#120e0a]">
+        <div className="w-1/2 bg-stone-500" />
+        <div className="flex w-1/2 flex-col items-center justify-center gap-1">
+          <SketchCrown />
+          <div className="h-px w-4 bg-[#e8c872]" />
+        </div>
+      </div>
+    )
+  }
+  if (kind === 'imperial') {
+    return (
+      <div className="flex h-14 flex-col items-center overflow-hidden rounded-md bg-[#fbf7ef] pt-1">
+        <SketchCrown />
+        <div className="mt-1 h-7 w-10 border-2 border-[#e8c872] bg-stone-300" />
+      </div>
+    )
+  }
+  if (kind === 'regent') {
+    return (
+      <div className="flex h-14 flex-col items-center justify-center overflow-hidden rounded-md bg-[#10243f]">
+        <SketchCrown />
+        <div className="mt-1 h-2 w-10 rounded-full border border-[#e8c872]" />
+      </div>
+    )
+  }
+  if (kind === 'sovereign') {
+    return (
+      <div className="flex h-14 flex-col items-center justify-center overflow-hidden rounded-md bg-[#0c0a09]">
+        <SketchCrown className="h-4 w-5" />
+        <div className="mt-1 h-px w-8 bg-[#e8c872]" />
+      </div>
+    )
+  }
+  if (kind === 'dynasty') {
+    return (
+      <div className="relative flex h-14 flex-col items-center overflow-hidden rounded-md bg-[#f8f1e7] pt-1">
+        <SketchCrown />
+        <div className="mt-0.5 h-7 w-10 border-2 border-[#e8c872] bg-[#6b1d2a]/70" />
+      </div>
+    )
+  }
+  if (kind === 'atrium') {
+    return (
+      <div className="flex h-14 flex-col overflow-hidden rounded-md">
+        <div className="flex flex-1 flex-col items-center justify-end bg-[#0b1f33] pb-1">
+          <div className="h-1 w-8 bg-white" />
+          <div className="mt-1 h-px w-4 bg-[#c4a46a]" />
+        </div>
+        <div className="h-3 bg-white" />
+      </div>
+    )
+  }
+  if (kind === 'concierge') {
+    return (
+      <div className="flex h-14 overflow-hidden rounded-md">
+        <div className="flex w-1/2 flex-col justify-center gap-1 bg-[#f7f4ee] px-1.5">
+          <div className="h-1 w-6 bg-[#1f3a2e]" />
+          <div className="h-2 w-full bg-[#1f3a2e]/20" />
+        </div>
+        <div className="w-1/2 bg-emerald-800/70" />
+      </div>
+    )
+  }
+  if (kind === 'monument') {
+    return (
+      <div className="flex h-14 items-center gap-1 overflow-hidden rounded-md bg-white px-1.5">
+        <div className="flex flex-1 flex-col gap-1">
+          <div className="h-1.5 w-8 bg-slate-900" />
+          <div className="h-2 w-full border border-slate-300" />
+        </div>
+        <div className="h-10 w-8 bg-slate-300" />
+      </div>
+    )
+  }
+  if (kind === 'harbor') {
+    return (
+      <div className="flex h-14 flex-col overflow-hidden rounded-md">
+        <div className="flex flex-1 items-end bg-sky-800 p-1">
+          <div className="h-1 w-8 bg-[#d6b25e]" />
+        </div>
+        <div className="h-4 bg-[#0c2340]" />
+      </div>
+    )
+  }
+  if (kind === 'residence') {
+    return (
+      <div className="flex h-14 flex-col overflow-hidden rounded-md bg-[#f7f3ee] px-1.5 pt-1">
+        <div className="h-1 w-10 bg-[#3f3a36]" />
+        <div className="mt-1 h-6 w-full bg-stone-400" />
+        <div className="mt-1 h-1.5 w-8 bg-white" />
+      </div>
+    )
+  }
+  if (kind === 'ledger') {
+    return (
+      <div className="flex h-14 overflow-hidden rounded-md border border-stone-300">
+        <div className="flex w-1/2 flex-col justify-center gap-1 px-1.5">
+          <div className="h-1 w-6 bg-stone-900" />
+          <div className="h-px w-3 bg-amber-700" />
+        </div>
+        <div className="w-1/2 border-l border-stone-300 bg-stone-400" />
+      </div>
+    )
+  }
+  if (kind === 'luxe') {
+    return (
+      <div className="relative flex h-14 items-end overflow-hidden rounded-md bg-sky-900">
+        <div className="w-full px-1.5 pb-1.5">
+          <div className="mx-auto h-1 w-8 rounded-full bg-white" />
+          <div className="mt-1 h-3 rounded-full bg-white/80" />
+        </div>
+      </div>
+    )
+  }
+  if (kind === 'gallery') {
+    return (
+      <div className="flex h-14 overflow-hidden rounded-md">
+        <div className="w-1/2 bg-sky-300" />
+        <div className="flex w-1/2 flex-col justify-center gap-1 bg-[#1d4e89] px-1.5">
+          <div className="h-1 w-6 bg-white" />
+          <div className="h-2 w-full rounded bg-[#f6efe4]" />
+        </div>
+      </div>
+    )
+  }
+  if (kind === 'ribbon') {
+    return (
+      <div className="relative h-14 overflow-hidden rounded-md bg-[#0f4c5c]">
+        <div className="absolute inset-x-1.5 bottom-1 rounded-md bg-white p-1 shadow">
+          <div className="h-1 w-8 bg-[#0f4c5c]" />
+          <div className="mt-1 h-1.5 w-full rounded bg-amber-200" />
+        </div>
+      </div>
+    )
+  }
+  if (kind === 'sanctuary') {
+    return (
+      <div className="flex h-14 flex-col items-center overflow-hidden rounded-md bg-[#f6f0e8] px-1.5 pt-1.5">
+        <div className="h-6 w-full rounded-lg bg-amber-700/70" />
+        <div className="mt-1 h-1 w-8 rounded-full bg-[#6d4c41]" />
+        <div className="mt-1 h-1.5 w-full rounded-full bg-white" />
+      </div>
+    )
+  }
+  if (kind === 'midnight') {
+    return (
+      <div className="flex h-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-md bg-[#09090b]">
+        <div className="h-1 w-8 bg-[#d4af37]" />
+        <div className="h-px w-4 bg-[#d4af37]" />
+        <div className="h-2 w-10 rounded-full bg-[#f3e6c4]" />
+      </div>
+    )
+  }
+  if (kind === 'editorial') {
+    return (
+      <div className="flex h-14 overflow-hidden rounded-md">
+        <div className="flex w-1/2 flex-col justify-end bg-stone-900 p-1.5">
+          <div className="h-1 w-6 bg-amber-200" />
+          <div className="mt-1 h-2 w-full bg-white/80" />
+        </div>
+        <div className="w-1/2 bg-stone-400" />
+      </div>
+    )
+  }
+  if (kind === 'minimal') {
+    return (
+      <div className="flex h-14 flex-col overflow-hidden rounded-md border border-slate-300 bg-white">
+        <div className="px-1.5 pt-1.5">
+          <div className="h-1 w-8 bg-slate-800" />
+        </div>
+        <div className="mx-1.5 mt-1 h-5 bg-slate-200" />
+        <div className="mt-auto h-2.5 border-t border-slate-300 bg-slate-50" />
+      </div>
+    )
+  }
+  if (kind === 'soft') {
+    return (
+      <div className="flex h-14 overflow-hidden rounded-md bg-sky-50">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-1.5">
+          <div className="h-1.5 w-8 rounded-full bg-sky-400" />
+          <div className="h-1 w-10 rounded-full bg-sky-200" />
+          <div className="h-2 w-full rounded-full bg-amber-200" />
+        </div>
+        <div className="m-1 w-12 rounded-xl bg-sky-300" />
+      </div>
+    )
+  }
+  if (kind === 'nature') {
+    return (
+      <div className="relative flex h-14 items-end overflow-hidden rounded-md bg-emerald-300">
+        <div className="w-full bg-emerald-950/75 p-1.5">
+          <div className="h-1 w-8 bg-white" />
+          <div className="mt-1 h-2 w-full rounded bg-amber-100" />
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="flex h-14 flex-col overflow-hidden rounded-md bg-slate-100">
+      <div className="mx-1.5 mt-1.5 h-2 rounded bg-[#1B4F8A]" />
+      <div className="mx-1.5 mt-1 h-5 rounded bg-sky-800/70" />
+      <div className="mx-1.5 mb-1.5 mt-1 h-2 rounded bg-[#e8f2fc]" />
+    </div>
+  )
+}
+
+function TemplatePickerModal({ open, selectedId, onSelect, onClose }) {
+  const selectedTemplate = DESIGN_TEMPLATES.find((template) => template.id === selectedId)
+  const [query, setQuery] = useState('')
+  const [tier, setTier] = useState(selectedTemplate?.tier ?? 'basic')
+
+  useEffect(() => {
+    if (!open) return undefined
+    setQuery('')
+    setTier(selectedTemplate?.tier ?? 'basic')
+    function onKey(event) {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onClose, selectedTemplate?.tier])
+
+  if (!open) return null
+
+  const activeTier = TEMPLATE_TIERS.find((item) => item.id === tier) ?? TEMPLATE_TIERS[0]
+  const needle = query.trim().toLowerCase()
+  const matches = DESIGN_TEMPLATES.filter((template) => {
+    if (template.tier !== activeTier.id) return false
+    if (!needle) return true
+    return `${template.name} ${template.hint}`.toLowerCase().includes(needle)
+  })
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/45 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="template-picker-title"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
+      <div className="flex max-h-[min(40rem,calc(100dvh-2rem))] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+          <div>
+            <h2 id="template-picker-title" className="text-lg font-black text-[#0f3f73]">
+              Choose template
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-500">Pick a collection, then search for a layout.</p>
+          </div>
+          <button type="button" onClick={onClose} className="text-xl font-bold leading-none text-slate-500" aria-label="Close">
+            ×
+          </button>
+        </div>
+        <div className="border-b border-slate-100 px-5 py-3">
+          <div className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1" role="tablist" aria-label="Template collection">
+            {TEMPLATE_TIERS.map((item) => {
+              const active = item.id === activeTier.id
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setTier(item.id)}
+                  className={`rounded-lg px-1 py-2 text-[11px] font-black sm:text-xs ${
+                    active ? 'bg-[#1B4F8A] text-white shadow-sm' : 'text-slate-600 hover:bg-white'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </div>
+          <input
+            autoFocus
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={`Search ${activeTier.label.toLowerCase()} templates`}
+            aria-label="Search templates"
+            className="mt-3 w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-800 outline-none ring-[#2B5AED] focus:ring-2"
+          />
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          {matches.length === 0 ? (
+            <p className="px-1 py-8 text-center text-sm text-slate-500">
+              {needle
+                ? 'No templates match your search.'
+                : `No ${activeTier.label.toLowerCase()} templates yet.`}
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {matches.map((template) => {
+                const selected = selectedId === template.id
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => onSelect(template)}
+                    className={`rounded-xl border p-2 text-left transition ${
+                      selected
+                        ? 'border-[#1B4F8A] ring-2 ring-[#1B4F8A]/30'
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <TemplateSketch kind={template.sketch} />
+                    <p className="mt-2 text-[11px] font-bold leading-tight text-[#0f3f73]">{template.name}</p>
+                    <p className="mt-0.5 text-[10px] leading-tight text-slate-500">{template.hint}</p>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function isValidHex(v) {
   return /^#[0-9A-Fa-f]{6}$/.test((v ?? '').trim())
 }
@@ -143,9 +485,11 @@ function PortalPreview({
       ? 'mx-auto w-full max-w-[min(100%,380px)] shadow-2xl'
       : 'w-full max-w-full shadow-2xl lg:max-w-[min(90rem,calc(100%-1rem))]'
 
+  const brand = (layout?.businessName ?? '').trim() || merchantName || 'My Hotel'
+
   return (
-    <div className={`rounded-t-xl border border-slate-300/80 bg-white ${frameClass}`}>
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-100 px-3 py-2">
+    <div className={`relative flex h-full min-h-0 flex-col overflow-hidden rounded-t-xl border border-slate-300/80 bg-white ${frameClass}`}>
+      <div className="flex shrink-0 items-center gap-2 border-b border-slate-200 bg-slate-100 px-3 py-2">
         <span className="inline-flex gap-1">
           <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
@@ -160,20 +504,31 @@ function PortalPreview({
           </p>
         </div>
       </div>
-      <GuestPortalMicrosite
-        layout={layout}
-        headline={headline}
-        message={message}
-        primaryColor={primaryColor}
-        accentColor={accentColor}
-        heroImageUrl={heroImageUrl}
-        merchantNameFallback={merchantName}
-        slug={merchantSlug}
-        themePreset={themePreset}
-        units={units}
-        LinkComponent="span"
-        linkHomeProps={{}}
-      />
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <GuestPortalMicrosite
+          layout={layout}
+          headline={headline}
+          message={message}
+          primaryColor={primaryColor}
+          accentColor={accentColor}
+          heroImageUrl={heroImageUrl}
+          merchantNameFallback={merchantName}
+          slug={merchantSlug}
+          themePreset={themePreset}
+          units={units}
+          LinkComponent="span"
+          linkHomeProps={{}}
+          embedded
+        />
+      </div>
+      {layout?.allowGuestMessages !== false ? (
+        <GuestPortalChat
+          placement="frame"
+          slug={merchantSlug}
+          merchantName={brand}
+          accentColor={accentColor}
+        />
+      ) : null}
     </div>
   )
 }
@@ -192,6 +547,7 @@ function mergeLayoutFromApi(raw) {
     sectionVisibility: { ...base.sectionVisibility, ...(raw.sectionVisibility || {}) },
     showReviews: raw.showReviews !== false,
     showMap: raw.showMap !== false,
+    allowGuestMessages: raw.allowGuestMessages !== false,
   }
 }
 
@@ -214,6 +570,7 @@ function DirectPortalDesignPage() {
 
   const [tab, setTab] = useState('design')
   const [previewMode, setPreviewMode] = useState('desktop')
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false)
 
   const [merchantSlug, setMerchantSlug] = useState('')
   const [merchantName, setMerchantName] = useState('')
@@ -261,9 +618,7 @@ function DirectPortalDesignPage() {
       setThemePreset(data.themePreset ?? 'bold_modern')
       setPrimaryColor(isValidHex(data.primaryColor) ? data.primaryColor : '#1B4F8A')
       setAccentColor(isValidHex(data.accentColor) ? data.accentColor : '#F5A623')
-      setHeroImageUrl(
-        typeof data.heroImageUrl === 'string' && data.heroImageUrl.trim() ? data.heroImageUrl.trim() : DEFAULT_HERO_BANNER_URL,
-      )
+      setHeroImageUrl(resolveHeroBannerUrl(data.heroImageUrl))
       setUnits(Array.isArray(data.units) ? data.units : [])
       setGuestPortalLive(Boolean(data.guestPortalLive))
       setPageTitle(typeof data.pageTitle === 'string' ? data.pageTitle : '')
@@ -291,6 +646,18 @@ function DirectPortalDesignPage() {
     setPrimaryColor(preset.primary)
     setAccentColor(preset.accent)
   }
+
+  function applyTemplate(template) {
+    setThemePreset(template.id)
+    setPrimaryColor(template.primary)
+    setAccentColor(template.accent)
+    setLayout((current) => ({ ...current, designTemplate: template.id }))
+    setTemplatePickerOpen(false)
+  }
+
+  const closeTemplatePicker = useCallback(() => {
+    setTemplatePickerOpen(false)
+  }, [])
 
   function buildPayload() {
     return {
@@ -517,7 +884,7 @@ function DirectPortalDesignPage() {
   ]
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-slate-200/90">
+    <div className="absolute inset-0 flex min-h-0 w-full min-w-0 flex-col overflow-hidden bg-slate-200/90">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#0a2344] bg-[#0c2d5a] px-4 py-3 text-white md:px-6">
         <div className="flex min-w-0 items-center gap-2">
           <GlobeIcon className="h-6 w-6 shrink-0 text-sky-200" />
@@ -605,6 +972,31 @@ function DirectPortalDesignPage() {
               {tab === 'design' && (
                 <>
                   <section>
+                    <h2 className="text-xs font-black uppercase tracking-wider text-slate-500">Templates</h2>
+                    <p className="mt-1 text-[11px] leading-snug text-slate-500">
+                      Search the library and pick a layout. Colors can still be changed below.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setTemplatePickerOpen(true)}
+                      className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition hover:border-[#1B4F8A]"
+                    >
+                      <span>
+                        <span className="block text-sm font-black text-[#0f3f73]">Choose template</span>
+                        <span className="mt-0.5 block text-[11px] font-semibold text-slate-500">
+                          Using{' '}
+                          {DESIGN_TEMPLATES.find(
+                            (template) => template.id === resolveDesignTemplate(layout.designTemplate, themePreset),
+                          )?.name ?? 'Classic'}
+                        </span>
+                      </span>
+                      <span className="shrink-0 rounded-lg bg-[#1B4F8A] px-3 py-1.5 text-[11px] font-black text-white">
+                        Browse
+                      </span>
+                    </button>
+                  </section>
+
+                  <section>
                     <h2 className="text-xs font-black uppercase tracking-wider text-slate-500">Theme</h2>
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       {THEME_PRESETS.map((p) => (
@@ -672,7 +1064,7 @@ function DirectPortalDesignPage() {
                     </p>
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       {HERO_BANNER_PRESETS.map((preset) => {
-                        const selected = heroImageUrl.trim() === preset.url
+                        const selected = resolveHeroBannerUrl(heroImageUrl) === preset.url
                         return (
                           <button
                             key={preset.id}
@@ -693,7 +1085,10 @@ function DirectPortalDesignPage() {
                               className="aspect-[16/10] w-full object-cover"
                               loading="lazy"
                               onError={(e) => {
-                                e.currentTarget.src = DEFAULT_HERO_BANNER_URL
+                                const img = e.currentTarget
+                                if (img.dataset.fallbackApplied === '1') return
+                                img.dataset.fallbackApplied = '1'
+                                img.src = DEFAULT_HERO_BANNER_URL
                               }}
                             />
                             <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-2 pb-2 pt-8">
@@ -733,17 +1128,6 @@ function DirectPortalDesignPage() {
                       {heroUploadError ? (
                         <p className="mt-2 text-xs font-medium text-rose-600">{heroUploadError}</p>
                       ) : null}
-                    </div>
-                    <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
-                      <img
-                        key={heroImageUrl.trim() || DEFAULT_HERO_BANNER_URL}
-                        src={heroImageUrl.trim() || DEFAULT_HERO_BANNER_URL}
-                        alt="Hero preview"
-                        className="aspect-[21/9] min-h-[7rem] w-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = DEFAULT_HERO_BANNER_URL
-                        }}
-                      />
                     </div>
                   </section>
                 </>
@@ -989,6 +1373,18 @@ function DirectPortalDesignPage() {
                         <span className="text-sm font-bold text-[#0f3f73]">Show map</span>
                         <SectionToggle checked={layout.showMap} onChange={(v) => setLayout((p) => ({ ...p, showMap: v }))} />
                       </label>
+                      <label className="flex items-center justify-between gap-3">
+                        <span>
+                          <span className="block text-sm font-bold text-[#0f3f73]">Customer messages</span>
+                          <span className="block text-[11px] font-medium text-slate-500">
+                            Guests need a customer account before they can chat.
+                          </span>
+                        </span>
+                        <SectionToggle
+                          checked={layout.allowGuestMessages !== false}
+                          onChange={(v) => setLayout((p) => ({ ...p, allowGuestMessages: v }))}
+                        />
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -1017,7 +1413,7 @@ function DirectPortalDesignPage() {
               </div>
             </div>
 
-            <div className="flex min-h-0 flex-1 justify-center overflow-y-auto pb-8">
+            <div className="flex min-h-0 flex-1 justify-center overflow-hidden">
               <PortalPreview
                 previewMode={previewMode}
                 previewUrl={previewUrl}
@@ -1027,7 +1423,7 @@ function DirectPortalDesignPage() {
                 pageTitle={pageTitle}
                 primaryColor={isValidHex(primaryColor) ? primaryColor : '#1B4F8A'}
                 accentColor={isValidHex(accentColor) ? accentColor : '#F5A623'}
-                heroImageUrl={heroImageUrl.trim() || DEFAULT_HERO_BANNER_URL}
+                heroImageUrl={resolveHeroBannerUrl(heroImageUrl)}
                 layout={layout}
                 merchantSlug={merchantSlug}
                 themePreset={themePreset}
@@ -1037,6 +1433,13 @@ function DirectPortalDesignPage() {
           </div>
         </div>
       )}
+      <TemplatePickerModal
+        key={templatePickerOpen ? 'open' : 'closed'}
+        open={templatePickerOpen}
+        selectedId={resolveDesignTemplate(layout.designTemplate, themePreset)}
+        onSelect={applyTemplate}
+        onClose={closeTemplatePicker}
+      />
     </div>
   )
 }

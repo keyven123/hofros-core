@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   CartesianGrid,
   Line,
@@ -221,8 +221,11 @@ const emptyDashboard = {
 
 export default function DashboardHomePage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const refreshAt = location.state?.refreshAt
   const reservationsPanelRef = useRef(null)
   const [data, setData] = useState(emptyDashboard)
+  const [billing, setBilling] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [outlookStart, setOutlookStart] = useState(() => todayYmd())
@@ -273,7 +276,21 @@ export default function DashboardHomePage() {
 
   useEffect(() => {
     void loadDashboard()
-  }, [loadDashboard])
+  }, [loadDashboard, refreshAt])
+
+  useEffect(() => {
+    let cancelled = false
+    apiFetch('/v1/subscription')
+      .then((payload) => {
+        if (!cancelled) setBilling(payload?.invoice ?? null)
+      })
+      .catch(() => {
+        if (!cancelled) setBilling(null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const newlyBookedCount = data.kpis.newlyBookedToday ?? 0
 
@@ -371,8 +388,9 @@ export default function DashboardHomePage() {
   }, [activityTab, sales.rows, data.todayActivity, currency])
 
   return (
-    <div className="min-h-full bg-[#eef3fb] p-4 pb-10 print:bg-white">
-      <header className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between print:hidden">
+    <div className="flex min-h-full w-full min-w-0 flex-col bg-[#eef3fb] p-4 pb-10 print:bg-white">
+      <header className="mb-4 print:hidden">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-black tracking-tight text-slate-800">{formatHeaderLong(data.date)}</h1>
           <button
@@ -409,6 +427,36 @@ export default function DashboardHomePage() {
             Create new reservation
           </button>
         </div>
+        </div>
+        {billing ? (
+          <Link
+            to="/billing"
+            className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm hover:border-[#2B5AED] sm:grid-cols-5 sm:items-center"
+          >
+            <span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Amount due</span>
+              <span className="text-sm font-black text-[#0f3f73]">{formatMoney(billing.total, billing.currency)}</span>
+            </span>
+            <span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Due date</span>
+              <span className="text-sm font-semibold text-slate-800">{formatHeaderLong(billing.dueOn)}</span>
+            </span>
+            <span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Rooms</span>
+              <span className="text-sm font-semibold text-slate-800">{formatMoney(billing.roomsSubtotal, billing.currency)}</span>
+            </span>
+            <span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Modules</span>
+              <span className="text-sm font-semibold text-slate-800">{formatMoney(billing.modulesSubtotal, billing.currency)}</span>
+            </span>
+            <span className="col-span-2 sm:col-span-1">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Account</span>
+              <span className={`mt-0.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${billing.accountStatus === 'suspended' ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                {billing.accountStatus === 'suspended' ? 'Inactive' : 'Active'}
+              </span>
+            </span>
+          </Link>
+        ) : null}
       </header>
 
       {error ? (

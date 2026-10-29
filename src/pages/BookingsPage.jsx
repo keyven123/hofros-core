@@ -479,8 +479,8 @@ function BookingsPage() {
   }, [units])
 
   return (
-    <div className="min-h-full bg-[#f6f9ff] px-4 py-6 sm:px-8 sm:py-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <div className="flex min-h-full w-full min-w-0 flex-col bg-[#f6f9ff] p-4">
+      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-[#0f3f73]">Bookings</h1>
@@ -537,9 +537,9 @@ function BookingsPage() {
           <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">{listError}</div>
         ) : null}
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="min-w-[920px] w-full border-collapse text-left text-sm">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+          <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+            <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-bold uppercase tracking-wide text-slate-500">
                   <th className="px-4 py-3">Guest</th>

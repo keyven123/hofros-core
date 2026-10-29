@@ -1,16 +1,29 @@
-# React + Vite
+# Hofros frontend (`hofros-core`)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite UI for Hofros. Deployment foundation mirrors LPay (`lpay-core`).
 
-Currently, two official plugins are available:
+## Quick start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+cp .env.example .env
+npm install
+npm run dev
+```
 
-## React Compiler
+Open http://localhost:3000. API calls use the relative base `/api/v1`, which the
+Vite dev server proxies to Laravel (`VITE_APP_URL`, default http://127.0.0.1:8000).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- API (via proxy): http://localhost:3000/api
+- Health (via proxy): http://localhost:3000/api/health
 
-## Expanding the ESLint configuration
+## Deploy (Vercel → Hostinger API)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Import this repo in Vercel (build `npm run build`, output `dist` — see `vercel.json`).
+2. Set the env vars from `.env.vercel.example` in Vercel → Settings → Environment Variables:
+   - `VITE_API_BASE_URL=https://your-hofros-site.hostingersite.com/api/v1`
+   - `VITE_FRONTEND_URL=https://hofros.vercel.app`
+3. Redeploy (Vite bakes env vars in at build time).
+4. On Hostinger `backend/.env`, add the Vercel URL to `FRONTEND_URL` and
+   `CORS_ALLOWED_ORIGINS`, then `php artisan config:clear`.
+
+Backend setup is documented in `hofros-ws/hostinger/README.md`.

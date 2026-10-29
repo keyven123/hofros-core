@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import LogoMark from '../components/common/LogoMark'
 import MerchantSideNav from '../components/merchant/MerchantSideNav'
+import { apiFetch } from '../utils/api'
 import { clearMerchantSession, getMerchantSession } from '../utils/auth'
 
 const TOP_BAR_H = 'h-14'
@@ -11,7 +12,31 @@ function MerchantLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const session = getMerchantSession()
+  const [session, setSession] = useState(() => getMerchantSession())
+
+  useEffect(() => {
+    let cancelled = false
+    apiFetch('/v1/subscription')
+      .then((data) => {
+        const status = data?.invoice?.accountStatus
+        if (!cancelled && status === 'suspended' && location.pathname !== '/billing') {
+          navigate('/billing', { replace: true })
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [location.pathname, navigate])
+
+  useEffect(() => {
+    function syncSession() {
+      setSession(getMerchantSession())
+    }
+
+    window.addEventListener('hofros-session', syncSession)
+    return () => window.removeEventListener('hofros-session', syncSession)
+  }, [])
   const merchantName = session?.merchantName?.trim() || 'Merchant'
   const merchantInitial = merchantName.charAt(0).toLocaleUpperCase()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
@@ -49,13 +74,19 @@ function MerchantLayout() {
   }
 
   return (
-    <section className="h-dvh max-h-dvh overflow-hidden bg-[#f6f9ff]">
+    <section className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-[#f6f9ff]">
       <div
-        className={`grid h-full min-h-0 w-full grid-cols-1 grid-rows-[auto_auto_minmax(0,1fr)_minmax(0,2fr)] overflow-hidden lg:grid-cols-[220px_minmax(0,1fr)] lg:grid-rows-[3.5rem_minmax(0,1fr)]`}
+        className={`grid h-full min-h-0 w-full flex-1 grid-cols-1 grid-rows-[auto_auto_minmax(0,1fr)_minmax(0,1fr)] overflow-hidden lg:grid-cols-[220px_minmax(0,1fr)] lg:grid-rows-[3.5rem_minmax(0,1fr)]`}
       >
         <Link
-          to="/"
-          aria-label="Hofros home"
+          to="/dashboard"
+          aria-label="Merchant dashboard"
+          onClick={(event) => {
+            if (location.pathname === '/dashboard') {
+              event.preventDefault()
+              navigate('/dashboard', { replace: true, state: { refreshAt: Date.now() } })
+            }
+          }}
           className={`box-border flex shrink-0 ${TOP_BAR_H} items-center gap-2 border-b ${BORDER} bg-white px-3 lg:col-start-1 lg:row-start-1 lg:border-r`}
         >
           <LogoMark size="sm" />
@@ -139,6 +170,10 @@ function MerchantLayout() {
 
                   <button
                     type="button"
+                    onClick={() => {
+                      setIsProfileOpen(false)
+                      navigate('/advance?section=profile')
+                    }}
                     className="block w-full px-3 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-[#f4f9ff] hover:text-[#0f3f73]"
                   >
                     Profile
@@ -161,7 +196,7 @@ function MerchantLayout() {
           <MerchantSideNav />
         </div>
 
-        <main className="flex min-h-0 w-full min-w-0 flex-col overflow-y-auto overflow-x-hidden bg-[#f6f9ff] lg:col-start-2 lg:row-start-2">
+        <main className="relative flex h-full min-h-0 w-full min-w-0 flex-col overflow-y-auto overflow-x-hidden bg-[#f6f9ff] lg:col-start-2 lg:row-start-2">
           <Outlet />
         </main>
       </div>

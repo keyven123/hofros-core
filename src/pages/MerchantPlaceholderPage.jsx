@@ -1,6 +1,6 @@
 function MerchantPlaceholderPage({ title }) {
   return (
-    <div className="flex min-h-[calc(100vh-56px)] flex-col items-center justify-center gap-4 bg-[#f6f9ff] px-6 py-16">
+    <div className="flex min-h-full w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 bg-[#f6f9ff] px-6 py-16">
       <div className="rounded-2xl border border-amber-200 bg-[#fffbeb] px-5 py-2 text-xs font-bold uppercase tracking-[0.18em] text-amber-700">
         Work in progress
       </div>

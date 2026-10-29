@@ -6,11 +6,11 @@ export const MERCHANT_NAV = [
   { label: 'Bookings', to: '/bookings', icon: 'bookings' },
   { label: 'Discount', to: '/discount', icon: 'discount' },
   { label: 'Messages', to: '/messages', icon: 'messages' },
+  { label: 'Customers', to: '/customers', icon: 'customers' },
   { label: 'Analytics', to: '/analytics', icon: 'analytics' },
   { label: 'Booking Portals', to: '/bookingportals', icon: 'portals' },
-  { label: 'Marketplace', to: '/marketplace', icon: 'marketplace' },
-  { label: 'Experience', to: '/experience', icon: 'experience' },
   { label: 'Configuration', to: '/configuration', icon: 'configuration' },
+  { label: 'Billing', to: '/billing', icon: 'billing' },
   { label: 'Advanced', to: '/advance', icon: 'advanced' },
 ]
 
@@ -63,6 +63,17 @@ function SideMenuIcon({ type }) {
     )
   }
 
+  if (type === 'customers') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={common} aria-hidden="true" {...stroke}>
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    )
+  }
+
   if (type === 'analytics') {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={common} aria-hidden="true" {...stroke}>
@@ -85,35 +96,21 @@ function SideMenuIcon({ type }) {
     )
   }
 
-  if (type === 'marketplace') {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={common} aria-hidden="true" {...stroke}>
-        <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-        <path d="M10 12h4" />
-        <path d="M6 12v4h12v-4" />
-      </svg>
-    )
-  }
-
-  if (type === 'experience') {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={common} aria-hidden="true" {...stroke}>
-        <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72z" />
-        <path d="m14 7 3 3" />
-        <path d="M5 6v4" />
-        <path d="M19 14v4" />
-        <path d="M10 2v2" />
-        <path d="M7 8l1 1" />
-      </svg>
-    )
-  }
-
   if (type === 'configuration') {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={common} aria-hidden="true" {...stroke}>
         <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
         <circle cx="12" cy="12" r="3" />
+      </svg>
+    )
+  }
+
+  if (type === 'billing') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={common} aria-hidden="true" {...stroke}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 10h18" />
+        <path d="M7 15h5" />
       </svg>
     )
   }

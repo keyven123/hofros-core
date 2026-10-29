@@ -1198,7 +1198,7 @@ function ConfigurationPage() {
       : units.filter((unit) => String(unit.propertyId) === String(unitsPropertyId))
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="flex min-h-full w-full min-w-0 flex-col p-4">
       <header className="mb-4">
         <h1 className="text-2xl font-black tracking-tight text-[#0f3f73]">Configuration</h1>
         <p className="mt-1 text-sm text-slate-500">

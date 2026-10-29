@@ -322,7 +322,7 @@ function BookingPortalsPage() {
   }
 
   return (
-    <div className="min-h-full bg-white">
+    <div className="flex min-h-full w-full min-w-0 flex-col bg-white">
       <div className="border-b border-amber-100/80 bg-gradient-to-r from-white via-[#fffbeb] to-[#f0f7ff] px-4 py-6 md:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>

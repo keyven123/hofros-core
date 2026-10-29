@@ -383,8 +383,8 @@ function DiscountPage() {
   }
 
   return (
-    <div className="min-h-full bg-[#f6f9ff] px-4 py-6 sm:px-8 sm:py-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4">
+    <div className="flex min-h-full w-full min-w-0 flex-col bg-[#f6f9ff] p-4">
+      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#0f3f73]">Discounts</h1>
           <p className="text-sm text-slate-500">Manage promo codes and per-unit automatic discounts.</p>
@@ -428,9 +428,9 @@ function DiscountPage() {
               <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Total Uses</p><p className="text-2xl font-black">{promoStats.totalUses}</p></div>
               <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Avg. Discount</p><p className="text-2xl font-black">{Math.round(promoStats.avgDiscount)}%</p></div>
             </div>
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <div className="overflow-x-auto">
-                <table className="min-w-[860px] w-full text-left text-sm">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+                <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                     <tr><th className="px-4 py-3">Code</th><th className="px-4 py-3">Discount</th><th className="px-4 py-3">Min Nights</th><th className="px-4 py-3">Uses</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Actions</th></tr>
                   </thead>
@@ -475,9 +475,9 @@ function DiscountPage() {
                 + New Discount
               </button>
             </div>
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <div className="overflow-x-auto">
-                <table className="min-w-[860px] w-full text-left text-sm">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+                <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                     <tr><th className="px-4 py-3">Unit</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Discount</th><th className="px-4 py-3">Condition</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Actions</th></tr>
                   </thead>

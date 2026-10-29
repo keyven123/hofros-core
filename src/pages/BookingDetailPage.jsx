@@ -470,8 +470,8 @@ function BookingDetailPage() {
   const showAvailableUnits = row && (row.status === 'pending' || row.status === 'accepted')
 
   return (
-    <div className="min-h-full bg-[#f6f9ff] px-4 py-4 sm:px-8 sm:py-5">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4">
+    <div className="flex min-h-full w-full min-w-0 flex-col bg-[#f6f9ff] p-4">
+      <div className="flex w-full min-w-0 flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2">
             <Link

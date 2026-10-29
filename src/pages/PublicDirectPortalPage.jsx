@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import GuestPortalChat from '../components/guestPortal/GuestPortalChat'
 import GuestPortalMicrosite from '../components/guestPortal/GuestPortalMicrosite'
 import { apiFetch, unwrapJsonResourceData } from '../utils/api'
 import { displayNameFromSlug } from '../utils/merchantSlug'
@@ -19,6 +20,7 @@ function mergeLayoutFromApi(raw) {
     sectionVisibility: { ...base.sectionVisibility, ...(raw.sectionVisibility || {}) },
     showReviews: raw.showReviews !== false,
     showMap: raw.showMap !== false,
+    allowGuestMessages: raw.allowGuestMessages !== false,
   }
 }
 
@@ -146,22 +148,29 @@ function PublicDirectPortalPage() {
     )
   }
 
+  const brand = (layout.businessName ?? '').trim() || title
+
   return (
-    <GuestPortalMicrosite
-      layout={layout}
-      headline={headline}
-      message={blurb}
-      primaryColor={primaryColor}
-      accentColor={accentColor}
-      heroImageUrl={heroUrl}
-      merchantNameFallback={title}
-      slug={merchantSlug}
-      themePreset={themePreset}
-      units={units}
-      LinkComponent={Link}
-      linkHomeProps={{ to: '/' }}
-      bookTo={(id) => `/${merchantSlug}/directportal/book/${id}`}
-    />
+    <>
+      <GuestPortalMicrosite
+        layout={layout}
+        headline={headline}
+        message={blurb}
+        primaryColor={primaryColor}
+        accentColor={accentColor}
+        heroImageUrl={heroUrl}
+        merchantNameFallback={title}
+        slug={merchantSlug}
+        themePreset={themePreset}
+        units={units}
+        LinkComponent={Link}
+        linkHomeProps={{ to: '/' }}
+        bookTo={(id) => `/${merchantSlug}/directportal/book/${id}`}
+      />
+      {layout.allowGuestMessages !== false ? (
+        <GuestPortalChat placement="screen" slug={merchantSlug} merchantName={brand} accentColor={accentColor} />
+      ) : null}
+    </>
   )
 }
 

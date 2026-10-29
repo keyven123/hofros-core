@@ -83,7 +83,10 @@ export default function AnalyticsPage() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [exporting, setExporting] = useState(null)
+  const [exportOpen, setExportOpen] = useState(false)
+  const [exportYear, setExportYear] = useState(currentYear)
+  const [exportGranularity, setExportGranularity] = useState('monthly')
+  const [exporting, setExporting] = useState(false)
 
   const yearOptions = useMemo(() => {
     const years = []
@@ -121,16 +124,32 @@ export default function AnalyticsPage() {
   }, [year])
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  async function handleExport(granularity) {
-    setExporting(granularity)
+  function openExport() {
+    setExportYear(year)
+    setExportGranularity('monthly')
+    setExportOpen(true)
+  }
+
+  function closeExport() {
+    if (exporting) return
+    setExportOpen(false)
+  }
+
+  async function handleExport(event) {
+    event.preventDefault()
+    setExporting(true)
     setError(null)
     try {
-      const q = new URLSearchParams({ year: String(year), granularity })
-      await apiDownloadFile(`/v1/analytics/export?${q.toString()}`, `analytics-bookings-${year}-${granularity}.csv`)
+      const q = new URLSearchParams({ year: String(exportYear), granularity: exportGranularity })
+      await apiDownloadFile(
+        `/v1/analytics/export?${q.toString()}`,
+        `analytics-bookings-${exportYear}-${exportGranularity}.csv`,
+      )
+      setExportOpen(false)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Export failed.')
     } finally {
-      setExporting(null)
+      setExporting(false)
     }
   }
 
@@ -142,7 +161,7 @@ export default function AnalyticsPage() {
   const hasSources = data?.sources?.some((s) => s.count > 0)
 
   return (
-    <div className="min-h-0 flex-1 space-y-4 p-4">
+    <div className="flex min-h-full w-full min-w-0 flex-col gap-4 p-4">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-black tracking-tight text-[#0f3f73]">Analytics</h1>
         <div className="flex flex-wrap items-center gap-2">
@@ -161,21 +180,90 @@ export default function AnalyticsPage() {
             </select>
           </label>
           <span className="hidden text-slate-300 sm:inline">|</span>
-          <div className="flex flex-wrap gap-1.5">
-            {['daily', 'weekly', 'monthly', 'yearly'].map((g) => (
-              <button
-                key={g}
-                type="button"
-                disabled={exporting !== null}
-                onClick={() => handleExport(g)}
-                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold capitalize text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
-              >
-                {exporting === g ? '…' : `Export ${g}`}
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={openExport}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            Export
+          </button>
         </div>
       </header>
+
+      {exportOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f3f73]/35 p-4" onClick={closeExport}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="analytics-export-title"
+            className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 id="analytics-export-title" className="text-lg font-bold text-[#0f3f73]">
+                  Export analytics
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">Choose the year and period for the CSV download.</p>
+              </div>
+              <button
+                type="button"
+                onClick={closeExport}
+                disabled={exporting}
+                className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+              >
+                Close
+              </button>
+            </div>
+            <form onSubmit={handleExport} className="mt-4 grid gap-3">
+              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Year
+                <select
+                  value={exportYear}
+                  onChange={(e) => setExportYear(Number(e.target.value))}
+                  className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0f3f73] outline-none ring-blue-200 focus:ring-2"
+                >
+                  {yearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Period
+                <select
+                  value={exportGranularity}
+                  onChange={(e) => setExportGranularity(e.target.value)}
+                  className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0f3f73] outline-none ring-blue-200 focus:ring-2"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </label>
+              <div className="mt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={closeExport}
+                  disabled={exporting}
+                  className="h-10 rounded-lg border border-slate-200 px-4 text-xs font-bold text-slate-600 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={exporting}
+                  className="h-10 rounded-lg bg-[#2B5AED] px-4 text-xs font-bold text-white disabled:opacity-50"
+                >
+                  {exporting ? 'Exporting…' : 'Proceed'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
 
       {error && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</div>

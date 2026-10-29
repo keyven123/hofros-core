@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { apiFetch } from '../utils/api'
+import { apiFetch, unwrapJsonResourceData } from '../utils/api'
 import { normalizeBookingFromApi, normalizeCalendarResponse } from '../utils/apiNormalize'
 import { stayRangesOverlap } from '../utils/stayRange'
 import { formatMoney, sourceLabel, statusLabel } from './bookingsCommon'
@@ -736,13 +736,13 @@ function CalendarBookingDetailPopover({
                       <div>
                         <dt className="text-xs font-bold text-slate-800">Email</dt>
                         <dd className="mt-px break-all text-[13px] font-normal leading-snug text-slate-700">
-                          {detail?.guestEmail ?? '—'}
+                          {detail?.guestEmail || '—'}
                         </dd>
                       </div>
                       <div>
                         <dt className="text-xs font-bold text-slate-800">Phone</dt>
                         <dd className="mt-px text-[13px] font-normal leading-snug text-slate-700">
-                          {detail?.guestPhone ?? '—'}
+                          {detail?.guestPhone || '—'}
                         </dd>
                       </div>
                       <div>
@@ -1150,7 +1150,7 @@ function CalendarPage() {
     setBookingDetailPayload(null)
     void apiFetch(`/v1/bookings/${bookingDetailPopover.bookingId}`)
       .then((data) => {
-        if (!cancelled) setBookingDetailPayload(normalizeBookingFromApi(data) ?? data)
+        if (!cancelled) setBookingDetailPayload(normalizeBookingFromApi(unwrapJsonResourceData(data)) ?? data)
       })
       .catch((e) => {
         if (!cancelled) {
@@ -1556,7 +1556,7 @@ function CalendarPage() {
         method: 'PATCH',
         body: JSON.stringify({ notes: nextNotes }),
       })
-      setBookingDetailPayload(normalizeBookingFromApi(updated) ?? updated)
+      setBookingDetailPayload(normalizeBookingFromApi(unwrapJsonResourceData(updated)) ?? updated)
       await load()
     } catch (e) {
       setBookingDetailError(e instanceof Error ? e.message : 'Could not save notes.')
@@ -1580,7 +1580,7 @@ function CalendarPage() {
           checkOut,
         }),
       })
-      setBookingDetailPayload(normalizeBookingFromApi(updated) ?? updated)
+      setBookingDetailPayload(normalizeBookingFromApi(unwrapJsonResourceData(updated)) ?? updated)
       await load()
     } catch (e) {
       setBookingDetailError(e instanceof Error ? e.message : 'Could not move booking.')
@@ -1705,7 +1705,7 @@ function CalendarPage() {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 p-4 lg:p-6">
+    <div className="flex h-full min-h-0 w-full min-w-0 flex-col gap-4 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-black tracking-tight text-[#0f3f73]">Availability calendar</h1>

@@ -1,5 +1,7 @@
 const MERCHANT_SESSION_KEY = 'hofros:merchant-session'
 const MERCHANT_ACCOUNTS_KEY = 'hofros:merchant-accounts'
+const ADMIN_SESSION_KEY = 'hofros:admin-session'
+const MARKETING_SESSION_KEY = 'hofros:marketing-session'
 
 function readMerchantSession() {
   if (typeof window === 'undefined') {
@@ -61,8 +63,140 @@ export function clearMerchantSession() {
   window.localStorage.removeItem(MERCHANT_SESSION_KEY)
 }
 
+function readAdminSession() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    const stored = window.localStorage.getItem(ADMIN_SESSION_KEY)
+    return stored ? JSON.parse(stored) : null
+  } catch (error) {
+    return null
+  }
+}
+
+export function isAdminAuthenticated() {
+  const session = readAdminSession()
+  if (!session?.isAuthenticated) {
+    return false
+  }
+  const token = session?.apiToken
+  return typeof token === 'string' && token.trim().length > 0
+}
+
+export function setAdminAuthenticated(payload = {}) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const session = {
+    isAuthenticated: true,
+    email: payload.email ?? '',
+    apiToken: payload.apiToken ?? '',
+    createdAt: new Date().toISOString(),
+  }
+
+  window.localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session))
+}
+
+export function clearAdminSession() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.removeItem(ADMIN_SESSION_KEY)
+}
+
+export function getAdminSession() {
+  return readAdminSession()
+}
+
+function readMarketingSession() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    const stored = window.localStorage.getItem(MARKETING_SESSION_KEY)
+    return stored ? JSON.parse(stored) : null
+  } catch (error) {
+    return null
+  }
+}
+
+export function isMarketingAuthenticated() {
+  const session = readMarketingSession()
+  if (!session?.isAuthenticated) {
+    return false
+  }
+  const token = session?.apiToken
+  return typeof token === 'string' && token.trim().length > 0
+}
+
+export function setMarketingAuthenticated(payload = {}) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.setItem(
+    MARKETING_SESSION_KEY,
+    JSON.stringify({
+      isAuthenticated: true,
+      name: payload.name ?? '',
+      email: payload.email ?? '',
+      apiToken: payload.apiToken ?? '',
+      createdAt: new Date().toISOString(),
+    }),
+  )
+}
+
+export function clearMarketingSession() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.removeItem(MARKETING_SESSION_KEY)
+}
+
+export function getMarketingSession() {
+  return readMarketingSession()
+}
+
+export function getMarketingApiToken() {
+  const session = readMarketingSession()
+  const token = session?.apiToken
+  return typeof token === 'string' && token.trim() ? token.trim() : ''
+}
+
+export function getAdminApiToken() {
+  const session = readAdminSession()
+  const token = session?.apiToken
+  return typeof token === 'string' && token.trim() ? token.trim() : ''
+}
+
 export function getMerchantSession() {
   return readMerchantSession()
+}
+
+export function updateMerchantSession(partial) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const current = readMerchantSession()
+  if (!current) {
+    return
+  }
+
+  window.localStorage.setItem(
+    MERCHANT_SESSION_KEY,
+    JSON.stringify({
+      ...current,
+      ...partial,
+    }),
+  )
+  window.dispatchEvent(new Event('hofros-session'))
 }
 
 export function getApiToken() {
