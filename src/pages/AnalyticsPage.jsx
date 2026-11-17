@@ -49,6 +49,8 @@ function sourceColor(key) {
     manual: '#38BDF8',
     airbnb: '#F87171',
     booking_com: '#1E3A8A',
+    ticketoc: '#FB923C',
+    agoda: '#A78BFA',
     expedia: '#FB923C',
     vrbo: '#A78BFA',
   }

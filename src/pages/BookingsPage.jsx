@@ -253,8 +253,8 @@ function BookingModal({ open, title, units, saving, error, onClose, onSave }) {
                 <option value="manual">Manual</option>
                 <option value="airbnb">Airbnb</option>
                 <option value="booking_com">Booking.com</option>
-                <option value="expedia">Expedia</option>
-                <option value="vrbo">VRBO</option>
+                <option value="ticketoc">Ticketoc</option>
+                <option value="agoda">Agoda</option>
                 <option value="direct_portal">Direct portal</option>
               </select>
             </label>

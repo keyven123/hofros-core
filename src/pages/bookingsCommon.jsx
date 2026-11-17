@@ -15,8 +15,10 @@ export const SOURCE_LABELS = {
   manual: 'Manual',
   airbnb: 'Airbnb',
   booking_com: 'Booking.com',
-  expedia: 'Expedia',
-  vrbo: 'VRBO',
+  ticketoc: 'Ticketoc',
+  agoda: 'Agoda',
+  expedia: 'Ticketoc',
+  vrbo: 'Agoda',
 }
 
 export function statusBadgeClass(status) {

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import PricingSection from '../components/home/PricingSection'
 
 const metrics = [
   { value: '12,000+', label: 'Active Hosts' },
@@ -20,7 +21,7 @@ const features = [
     tone: 'amber',
     title: 'Multi-Channel Sync',
     description:
-      'Connect Airbnb, Booking.com, Expedia and more in one calendar, with zero double bookings.',
+      'Connect Airbnb, Booking.com, Ticketoc, Agoda and more in one calendar, with zero double bookings.',
   },
   {
     icon: 'message',
@@ -316,6 +317,8 @@ function HomePage() {
         </div>
       </div>
 
+      <PricingSection />
+
       <div id="reviews" className="bg-[#fff8e8] py-20">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-amber-500">
@@ -343,7 +346,7 @@ function HomePage() {
         </div>
       </div>
 
-      <div id="pricing" className="bg-[#fff7df] px-4 py-16 md:px-6">
+      <div className="bg-[#fff7df] px-4 py-16 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-4xl font-black tracking-tight text-[#0d3f71]">
             Ready to Grow Your Property?

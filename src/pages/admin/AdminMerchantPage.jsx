@@ -36,9 +36,11 @@ function portalLabel(key) {
     booking_com: 'Booking.com',
     direct: 'Direct',
     direct_website: 'Direct website',
-    expedia: 'Expedia',
+    ticketoc: 'Ticketoc',
     tripadvisor: 'Tripadvisor',
-    vrbo: 'Vrbo',
+    agoda: 'Agoda',
+    expedia: 'Ticketoc',
+    vrbo: 'Agoda',
   }
   return labels[key] || String(key || 'Portal').replace(/_/g, ' ')
 }

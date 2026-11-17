@@ -33,11 +33,29 @@ function AdminSubscriptionsPage() {
   const [planForm, setPlanForm] = useState(EMPTY_BASELINE)
   const [editingFeatureKey, setEditingFeatureKey] = useState(null)
   const [featurePrice, setFeaturePrice] = useState('')
+  const [billingForm, setBillingForm] = useState({
+    yearlyDiscountPercent: '66',
+    twoYearDiscountPercent: '70',
+  })
+  const [billingSaved, setBillingSaved] = useState({
+    yearlyDiscountPercent: '66',
+    twoYearDiscountPercent: '70',
+  })
+  const [editingBilling, setEditingBilling] = useState(false)
+  const [savingBilling, setSavingBilling] = useState(false)
 
   function applyPayload(data) {
     setFeatures(data.features ?? [])
     setPlans(data.plans ?? [])
     setMerchants(data.merchants ?? [])
+    const discounts = data.billingDiscounts ?? {}
+    const nextBilling = {
+      yearlyDiscountPercent: String(discounts.yearlyDiscountPercent ?? 66),
+      twoYearDiscountPercent: String(discounts.twoYearDiscountPercent ?? 70),
+    }
+    setBillingForm(nextBilling)
+    setBillingSaved(nextBilling)
+    setEditingBilling(false)
   }
 
   useEffect(() => {
@@ -80,6 +98,7 @@ function AdminSubscriptionsPage() {
   function startCreate() {
     setEditingId(null)
     setEditingFeatureKey(null)
+    setEditingBilling(false)
     setPlanForm(EMPTY_BASELINE)
     setCreating(true)
     setError('')
@@ -88,6 +107,7 @@ function AdminSubscriptionsPage() {
   function startEdit(plan) {
     setCreating(false)
     setEditingFeatureKey(null)
+    setEditingBilling(false)
     setEditingId(plan.id)
     setPlanForm({
       pricePerRoom: String(plan.pricePerRoom ?? ''),
@@ -125,6 +145,7 @@ function AdminSubscriptionsPage() {
 
   function startFeatureEdit(feature) {
     closePlanForm()
+    setEditingBilling(false)
     setEditingFeatureKey(feature.key)
     setFeaturePrice(String(feature.monthlyPrice ?? 0))
     setError('')
@@ -156,6 +177,28 @@ function AdminSubscriptionsPage() {
       setError(requestError?.message || 'Could not save the module price.')
     } finally {
       setSavingFeature(false)
+    }
+  }
+
+  async function saveBillingDiscounts(event) {
+    event.preventDefault()
+    setError('')
+    setNotice('')
+    setSavingBilling(true)
+    try {
+      const data = await adminFetch('/v1/admin/subscriptions/billing-discounts', {
+        method: 'PUT',
+        body: JSON.stringify({
+          yearly_discount_percent: Number(billingForm.yearlyDiscountPercent),
+          two_year_discount_percent: Number(billingForm.twoYearDiscountPercent),
+        }),
+      })
+      applyPayload(data)
+      setNotice('Yearly and 2-year discounts were updated.')
+    } catch (requestError) {
+      setError(requestError?.message || 'Could not save billing discounts.')
+    } finally {
+      setSavingBilling(false)
     }
   }
 
@@ -212,6 +255,99 @@ function AdminSubscriptionsPage() {
 
       {error ? <p className="mb-4 text-sm font-medium text-rose-600">{error}</p> : null}
       {notice ? <p className="mb-4 text-sm font-medium text-emerald-700">{notice}</p> : null}
+
+      <AdminPanel className="mb-4">
+        <div className="flex items-center justify-between gap-3 border-b border-[#f1ece4] px-4 py-3">
+          <div>
+            <h2 className="text-sm font-semibold text-[#0b1020]">Billing cycle discounts</h2>
+            <p className="text-xs text-slate-500">
+              Shown on the homepage pricing section for Yearly and 2-Year plans. Monthly stays at full rate.
+            </p>
+          </div>
+          {!editingBilling ? (
+            <button
+              type="button"
+              onClick={() => {
+                closePlanForm()
+                closeFeatureEdit()
+                setEditingBilling(true)
+                setError('')
+              }}
+              className="h-9 rounded-full bg-[#0b1020] px-4 text-xs font-semibold text-[#e8c872]"
+            >
+              Edit discounts
+            </button>
+          ) : null}
+        </div>
+        <form onSubmit={saveBillingDiscounts} className="px-4 py-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Yearly discount %
+              </span>
+              <input
+                required
+                type="number"
+                min="0"
+                max="95"
+                step="1"
+                disabled={!editingBilling}
+                aria-label="Yearly discount percent"
+                value={billingForm.yearlyDiscountPercent}
+                onChange={(event) =>
+                  setBillingForm((current) => ({ ...current, yearlyDiscountPercent: event.target.value }))
+                }
+                className={`${fieldClass} disabled:bg-[#f8f7f4] disabled:text-slate-500`}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                2-Year discount %
+              </span>
+              <input
+                required
+                type="number"
+                min="0"
+                max="95"
+                step="1"
+                disabled={!editingBilling}
+                aria-label="Two year discount percent"
+                value={billingForm.twoYearDiscountPercent}
+                onChange={(event) =>
+                  setBillingForm((current) => ({ ...current, twoYearDiscountPercent: event.target.value }))
+                }
+                className={`${fieldClass} disabled:bg-[#f8f7f4] disabled:text-slate-500`}
+              />
+            </label>
+          </div>
+          {editingBilling ? (
+            <div className="mt-4 flex gap-2">
+              <button
+                type="submit"
+                disabled={savingBilling}
+                className="h-9 rounded-full bg-[#0b1020] px-3 text-xs font-semibold text-[#e8c872] disabled:opacity-50"
+              >
+                {savingBilling ? 'Saving…' : 'Save discounts'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setBillingForm(billingSaved)
+                  setEditingBilling(false)
+                }}
+                className="h-9 rounded-full px-3 text-xs font-semibold text-slate-600 ring-1 ring-[#e8e4dc]"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-xs text-slate-500">
+              Homepage badges currently show −{billingForm.yearlyDiscountPercent}% yearly and −
+              {billingForm.twoYearDiscountPercent}% for 2-year billing.
+            </p>
+          )}
+        </form>
+      </AdminPanel>
 
       <AdminPanel className="mb-4">
         <div className="flex items-center justify-between gap-3 border-b border-[#f1ece4] px-4 py-3">

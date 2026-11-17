@@ -66,8 +66,8 @@ const BOOKING_SOURCE_OPTIONS = [
   { value: 'manual', label: 'Manual' },
   { value: 'airbnb', label: 'Airbnb' },
   { value: 'booking_com', label: 'Booking.com' },
-  { value: 'expedia', label: 'Expedia' },
-  { value: 'vrbo', label: 'VRBO' },
+  { value: 'ticketoc', label: 'Ticketoc' },
+  { value: 'agoda', label: 'Agoda' },
   { value: 'direct_portal', label: 'Direct portal' },
 ]
 
