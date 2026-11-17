@@ -41,7 +41,7 @@ function Navbar() {
             to="/register"
             className="rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-2 text-sm font-semibold text-[#103f6f] shadow-[0_10px_22px_rgba(245,158,11,0.32)] transition hover:scale-[1.02] hover:shadow-[0_14px_28px_rgba(245,158,11,0.4)]"
           >
-            Get Started Free
+            Start 30 days Free Trial
           </Link>
         </div>
       </div>

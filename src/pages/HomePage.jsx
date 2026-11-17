@@ -216,7 +216,7 @@ function HomePage() {
                 to="/register"
                 className="rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-6 py-3 text-sm font-bold text-[#0f3f72] shadow-[0_16px_30px_rgba(245,158,11,0.33)] transition hover:-translate-y-0.5"
               >
-                Start for Free
+                Start 30 days Free Trial
               </Link>
               <button
                 type="button"
@@ -358,7 +358,7 @@ function HomePage() {
             to="/register"
             className="mt-8 inline-flex rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-8 py-4 text-sm font-black text-[#0f3f72] shadow-[0_16px_28px_rgba(245,158,11,0.35)] transition hover:-translate-y-0.5"
           >
-            Start Free - No Credit Card Needed
+            Start 30 days Free Trial
           </Link>
         </div>
       </div>

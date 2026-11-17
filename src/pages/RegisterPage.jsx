@@ -71,7 +71,7 @@ function RegisterPage() {
           merchantName: data.user?.merchant_name ?? formData.merchantName,
           apiToken: data.token,
         })
-        navigate('/dashboard', { replace: true })
+        navigate('/getting-started', { replace: true })
         return
       }
     } catch (error) {
@@ -326,7 +326,7 @@ function RegisterPage() {
                 type="submit"
                 className="w-full rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-6 py-3 text-sm font-bold text-[#0f3f72] shadow-[0_14px_26px_rgba(245,158,11,0.3)] transition hover:-translate-y-0.5"
               >
-                Create Account
+                Start your Free Trial Now
               </button>
             </form>
           </div>

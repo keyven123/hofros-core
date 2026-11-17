@@ -43,6 +43,10 @@ function AdminSubscriptionsPage() {
   })
   const [editingBilling, setEditingBilling] = useState(false)
   const [savingBilling, setSavingBilling] = useState(false)
+  const [trialForm, setTrialForm] = useState({ days: '30' })
+  const [trialSaved, setTrialSaved] = useState({ days: '30' })
+  const [editingTrial, setEditingTrial] = useState(false)
+  const [savingTrial, setSavingTrial] = useState(false)
 
   function applyPayload(data) {
     setFeatures(data.features ?? [])
@@ -56,6 +60,12 @@ function AdminSubscriptionsPage() {
     setBillingForm(nextBilling)
     setBillingSaved(nextBilling)
     setEditingBilling(false)
+    const nextTrial = {
+      days: String(data.freeTrial?.days ?? 30),
+    }
+    setTrialForm(nextTrial)
+    setTrialSaved(nextTrial)
+    setEditingTrial(false)
   }
 
   useEffect(() => {
@@ -99,6 +109,7 @@ function AdminSubscriptionsPage() {
     setEditingId(null)
     setEditingFeatureKey(null)
     setEditingBilling(false)
+    setEditingTrial(false)
     setPlanForm(EMPTY_BASELINE)
     setCreating(true)
     setError('')
@@ -108,6 +119,7 @@ function AdminSubscriptionsPage() {
     setCreating(false)
     setEditingFeatureKey(null)
     setEditingBilling(false)
+    setEditingTrial(false)
     setEditingId(plan.id)
     setPlanForm({
       pricePerRoom: String(plan.pricePerRoom ?? ''),
@@ -146,6 +158,7 @@ function AdminSubscriptionsPage() {
   function startFeatureEdit(feature) {
     closePlanForm()
     setEditingBilling(false)
+    setEditingTrial(false)
     setEditingFeatureKey(feature.key)
     setFeaturePrice(String(feature.monthlyPrice ?? 0))
     setError('')
@@ -199,6 +212,27 @@ function AdminSubscriptionsPage() {
       setError(requestError?.message || 'Could not save billing discounts.')
     } finally {
       setSavingBilling(false)
+    }
+  }
+
+  async function saveFreeTrial(event) {
+    event.preventDefault()
+    setError('')
+    setNotice('')
+    setSavingTrial(true)
+    try {
+      const data = await adminFetch('/v1/admin/subscriptions/free-trial', {
+        method: 'PUT',
+        body: JSON.stringify({
+          free_trial_days: Number(trialForm.days),
+        }),
+      })
+      applyPayload(data)
+      setNotice('Free trial length was updated.')
+    } catch (requestError) {
+      setError(requestError?.message || 'Could not save free trial settings.')
+    } finally {
+      setSavingTrial(false)
     }
   }
 
@@ -259,6 +293,84 @@ function AdminSubscriptionsPage() {
       <AdminPanel className="mb-4">
         <div className="flex items-center justify-between gap-3 border-b border-[#f1ece4] px-4 py-3">
           <div>
+            <h2 className="text-sm font-semibold text-[#0b1020]">Free trial</h2>
+            <p className="text-xs text-slate-500">
+              New merchant accounts start with this many free days and no billing until the trial ends.
+            </p>
+          </div>
+          {!editingTrial ? (
+            <button
+              type="button"
+              onClick={() => {
+                closePlanForm()
+                closeFeatureEdit()
+                setEditingBilling(false)
+                setEditingTrial(true)
+                setError('')
+              }}
+              className="h-9 rounded-full bg-[#0b1020] px-4 text-xs font-semibold text-[#e8c872]"
+            >
+              Edit free trial
+            </button>
+          ) : null}
+        </div>
+        <form onSubmit={saveFreeTrial} className="px-4 py-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Trial length (days)
+              </span>
+              <input
+                required
+                type="number"
+                min="1"
+                max="365"
+                step="1"
+                disabled={!editingTrial}
+                aria-label="Free trial days"
+                value={trialForm.days}
+                onChange={(event) => setTrialForm({ days: event.target.value })}
+                className={`${fieldClass} disabled:bg-[#f8f7f4] disabled:text-slate-500`}
+              />
+            </label>
+            <div className="flex items-end">
+              <p className="rounded-xl border border-[#efe8dc] bg-[#fbfaf6] px-3 py-2 text-sm text-slate-600">
+                New signups get <span className="font-semibold text-[#0b1020]">{trialForm.days}</span> free{' '}
+                {Number(trialForm.days) === 1 ? 'day' : 'days'} before the first invoice.
+              </p>
+            </div>
+          </div>
+          {editingTrial ? (
+            <div className="mt-4 flex gap-2">
+              <button
+                type="submit"
+                disabled={savingTrial}
+                className="h-9 rounded-full bg-[#0b1020] px-3 text-xs font-semibold text-[#e8c872] disabled:opacity-50"
+              >
+                {savingTrial ? 'Saving…' : 'Save free trial'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTrialForm(trialSaved)
+                  setEditingTrial(false)
+                }}
+                className="h-9 rounded-full px-3 text-xs font-semibold text-slate-600 ring-1 ring-[#e8e4dc]"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-xs text-slate-500">
+              Currently set to {trialSaved.days} day{Number(trialSaved.days) === 1 ? '' : 's'} for new merchant accounts.
+            </p>
+          )}
+        </form>
+      </AdminPanel>
+
+      <AdminPanel className="mb-4">
+        <div className="flex items-center justify-between gap-3 border-b border-[#f1ece4] px-4 py-3">
+          <div>
             <h2 className="text-sm font-semibold text-[#0b1020]">Billing cycle discounts</h2>
             <p className="text-xs text-slate-500">
               Shown on the homepage pricing section for Yearly and 2-Year plans. Monthly stays at full rate.
@@ -270,6 +382,7 @@ function AdminSubscriptionsPage() {
               onClick={() => {
                 closePlanForm()
                 closeFeatureEdit()
+                setEditingTrial(false)
                 setEditingBilling(true)
                 setError('')
               }}

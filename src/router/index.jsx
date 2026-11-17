@@ -21,6 +21,7 @@ import BookingsPage from '../pages/BookingsPage'
 import BookingDetailPage from '../pages/BookingDetailPage'
 import AnalyticsPage from '../pages/AnalyticsPage'
 import HelpPage from '../pages/HelpPage'
+import GettingStartedPage from '../pages/GettingStartedPage'
 import CalendarPage from '../pages/CalendarPage'
 import BookingPortalsPage from '../pages/BookingPortalsPage'
 import DiscountPage from '../pages/DiscountPage'
@@ -162,6 +163,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
+        <Route path="/getting-started" element={<GettingStartedPage />} />
         <Route path="/dashboard" element={<DashboardHomePage />} />
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/bookings" element={<BookingsPage />} />

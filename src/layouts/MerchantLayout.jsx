@@ -13,6 +13,7 @@ function MerchantLayout() {
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [session, setSession] = useState(() => getMerchantSession())
+  const [gettingStarted, setGettingStarted] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -30,12 +31,39 @@ function MerchantLayout() {
   }, [location.pathname, navigate])
 
   useEffect(() => {
+    let cancelled = false
+    apiFetch('/v1/getting-started')
+      .then((data) => {
+        if (cancelled) return
+        setGettingStarted(data)
+        window.dispatchEvent(new CustomEvent('hofros-getting-started', { detail: data }))
+        if (!data?.dismissed && location.pathname === '/dashboard') {
+          navigate('/getting-started', { replace: true })
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [location.pathname, navigate])
+
+  useEffect(() => {
     function syncSession() {
       setSession(getMerchantSession())
     }
 
+    function syncGettingStarted(event) {
+      if (event?.detail) {
+        setGettingStarted(event.detail)
+      }
+    }
+
     window.addEventListener('hofros-session', syncSession)
-    return () => window.removeEventListener('hofros-session', syncSession)
+    window.addEventListener('hofros-getting-started', syncGettingStarted)
+    return () => {
+      window.removeEventListener('hofros-session', syncSession)
+      window.removeEventListener('hofros-getting-started', syncGettingStarted)
+    }
   }, [])
   const merchantName = session?.merchantName?.trim() || 'Merchant'
   const merchantInitial = merchantName.charAt(0).toLocaleUpperCase()
@@ -150,6 +178,20 @@ function MerchantLayout() {
             >
               Customize
             </button>
+            {gettingStarted?.dismissed && !gettingStarted?.completed ? (
+              <Link
+                to="/getting-started"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-amber-300 bg-gradient-to-r from-[#fff8e8] to-white px-3 text-sm font-semibold text-amber-900 transition hover:border-amber-400 hover:from-[#fff3d6]"
+              >
+                <span>Getting started</span>
+                <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[11px] font-black tabular-nums text-white">
+                  {Array.isArray(gettingStarted.steps)
+                    ? gettingStarted.steps.filter((step) => step.done).length
+                    : 0}
+                  /{Array.isArray(gettingStarted.steps) ? gettingStarted.steps.length : 4}
+                </span>
+              </Link>
+            ) : null}
             <div className="relative" ref={profileMenuRef}>
               <button
                 type="button"

@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import FreeTrialBanner from '../components/billing/FreeTrialBanner'
 import { apiFetch } from '../utils/api'
 import { formatMoney } from './bookingsCommon'
 
@@ -428,31 +429,84 @@ export default function DashboardHomePage() {
           </button>
         </div>
         </div>
+        {billing?.trial?.active ? (
+          <div className="mt-3 print:hidden">
+            <FreeTrialBanner
+              trial={billing.trial}
+              estimate={billing.postTrialEstimate}
+              currency={billing.currency}
+              compact
+            />
+          </div>
+        ) : null}
+
         {billing ? (
           <Link
             to="/billing"
-            className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm hover:border-[#2B5AED] sm:grid-cols-5 sm:items-center"
+            className={`mt-3 grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl px-4 py-2.5 shadow-sm sm:grid-cols-5 sm:items-center ${
+              billing.trial?.active
+                ? 'border border-amber-300 bg-gradient-to-r from-[#fff8e8] via-white to-[#eef6ff] hover:border-amber-400'
+                : 'border border-slate-200 bg-white hover:border-[#2B5AED]'
+            }`}
           >
             <span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Amount due</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                {billing.trial?.active ? 'Amount due now' : 'Amount due'}
+              </span>
               <span className="text-sm font-black text-[#0f3f73]">{formatMoney(billing.total, billing.currency)}</span>
             </span>
             <span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Due date</span>
-              <span className="text-sm font-semibold text-slate-800">{formatHeaderLong(billing.dueOn)}</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                {billing.trial?.active ? 'Trial ends' : 'Due date'}
+              </span>
+              <span className="text-sm font-semibold text-slate-800">
+                {formatHeaderLong(billing.trial?.active ? billing.trial.endsOn : billing.dueOn)}
+              </span>
             </span>
             <span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Rooms</span>
-              <span className="text-sm font-semibold text-slate-800">{formatMoney(billing.roomsSubtotal, billing.currency)}</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                {billing.trial?.active ? 'After trial' : 'Rooms'}
+              </span>
+              <span className="text-sm font-semibold text-slate-800">
+                {formatMoney(
+                  billing.trial?.active ? billing.postTrialEstimate?.total : billing.roomsSubtotal,
+                  billing.currency,
+                )}
+              </span>
             </span>
             <span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Modules</span>
-              <span className="text-sm font-semibold text-slate-800">{formatMoney(billing.modulesSubtotal, billing.currency)}</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                {billing.trial?.active ? 'Days left' : 'Modules'}
+              </span>
+              {billing.trial?.active ? (
+                <span className="inline-flex items-baseline gap-1">
+                  <span className="text-xl font-black tabular-nums text-amber-700">{billing.trial.daysRemaining}</span>
+                  <span className="text-xs font-bold uppercase tracking-wide text-amber-700/80">
+                    day{billing.trial.daysRemaining === 1 ? '' : 's'}
+                  </span>
+                </span>
+              ) : (
+                <span className="text-sm font-semibold text-slate-800">
+                  {formatMoney(billing.modulesSubtotal, billing.currency)}
+                </span>
+              )}
             </span>
             <span className="col-span-2 sm:col-span-1">
               <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Account</span>
-              <span className={`mt-0.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${billing.accountStatus === 'suspended' ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
-                {billing.accountStatus === 'suspended' ? 'Inactive' : 'Active'}
+              <span
+                className={`mt-0.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                  billing.accountStatus === 'suspended'
+                    ? 'bg-rose-50 text-rose-700'
+                    : billing.trial?.active
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-emerald-50 text-emerald-700'
+                }`}
+              >
+                {billing.accountStatus === 'suspended'
+                  ? 'Inactive'
+                  : billing.trial?.active
+                    ? 'Free trial'
+                    : 'Active'}
               </span>
             </span>
           </Link>
