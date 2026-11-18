@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import PromotionsPanel from '../components/discounts/PromotionsPanel'
 import { apiFetch } from '../utils/api'
 import { normalizeUnitDiscountFromApi } from '../utils/apiNormalize'
 
@@ -387,7 +388,7 @@ function DiscountPage() {
       <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#0f3f73]">Discounts</h1>
-          <p className="text-sm text-slate-500">Manage promo codes and per-unit automatic discounts.</p>
+          <p className="text-sm text-slate-500">Manage promo codes, per-unit discounts, and promotional offers.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -404,11 +405,20 @@ function DiscountPage() {
           >
             Per Unit
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('promotion')}
+            className={`rounded-lg px-4 py-2 text-sm font-bold ${activeTab === 'promotion' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}
+          >
+            Promotion
+          </button>
         </div>
 
         {error ? <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}
 
-        {activeTab === 'promo' ? (
+        {activeTab === 'promotion' ? (
+          <PromotionsPanel onError={setError} />
+        ) : activeTab === 'promo' ? (
           <>
             <div className="flex justify-end">
               <button

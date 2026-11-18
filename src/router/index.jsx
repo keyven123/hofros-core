@@ -15,6 +15,7 @@ import AdminBookingsPage from '../pages/admin/AdminBookingsPage'
 import AdminCalendarsPage from '../pages/admin/AdminCalendarsPage'
 import AdminUsersPage from '../pages/admin/AdminUsersPage'
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage'
+import AdminPartnerIntegrationsPage from '../pages/admin/AdminPartnerIntegrationsPage'
 import AdminLayout from '../layouts/AdminLayout'
 import ConfigurationPage from '../pages/ConfigurationPage'
 import BookingsPage from '../pages/BookingsPage'
@@ -30,10 +31,16 @@ import CustomersPage from '../pages/CustomersPage'
 import AdvancedPage from '../pages/AdvancedPage'
 import BillingPage from '../pages/BillingPage'
 import BillingCheckoutPage from '../pages/BillingCheckoutPage'
+import PaymentGatewaysPage from '../pages/PaymentGatewaysPage'
 import DirectWebsiteBuilderPage from '../pages/DirectWebsiteBuilderPage'
 import DirectPortalDesignPage from '../pages/DirectPortalDesignPage'
+import TicketocConnectPage from '../pages/TicketocConnectPage'
+import OtaConnectPage from '../pages/OtaConnectPage'
+import AirbnbAccommodationsPage from '../pages/AirbnbAccommodationsPage'
 import PublicDirectPortalPage from '../pages/PublicDirectPortalPage'
 import DirectPortalBookPage from '../pages/DirectPortalBookPage'
+import DirectPortalCheckoutPage from '../pages/DirectPortalCheckoutPage'
+import DirectPortalPaymentReturnPage from '../pages/DirectPortalPaymentReturnPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import RegisterPage from '../pages/RegisterPage'
 import ServicesPage from '../pages/ServicesPage'
@@ -153,8 +160,11 @@ function AppRoutes() {
         <Route path="/admin/calendars" element={<AdminCalendarsPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
+        <Route path="/admin/integrations" element={<AdminPartnerIntegrationsPage />} />
       </Route>
       <Route path="/:merchantSlug/directportal/book/:unitId" element={<DirectPortalBookPage />} />
+      <Route path="/:merchantSlug/directportal/checkout/:batchId" element={<DirectPortalCheckoutPage />} />
+      <Route path="/:merchantSlug/directportal/payment/return" element={<DirectPortalPaymentReturnPage />} />
       <Route path="/:merchantSlug/directportal" element={<PublicDirectPortalPage />} />
       <Route
         element={
@@ -175,7 +185,11 @@ function AppRoutes() {
         <Route path="/bookingportals" element={<BookingPortalsPage />} />
         <Route path="/direct-website-builder" element={<DirectWebsiteBuilderPage />} />
         <Route path="/direct-portal-design" element={<DirectPortalDesignPage />} />
+        <Route path="/ticketoc-connect" element={<TicketocConnectPage />} />
+        <Route path="/ota-connect/airbnb/accommodations" element={<AirbnbAccommodationsPage />} />
+        <Route path="/ota-connect/:portalKey" element={<OtaConnectPage />} />
         <Route path="/configuration" element={<ConfigurationPage />} />
+        <Route path="/payment-gateways" element={<PaymentGatewaysPage />} />
         <Route path="/billing" element={<BillingPage />} />
         <Route path="/billing/checkout" element={<BillingCheckoutPage />} />
         <Route path="/billing/checkout/return" element={<BillingCheckoutPage />} />

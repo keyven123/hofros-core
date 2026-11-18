@@ -1148,7 +1148,7 @@ function DirectPortalDesignPage() {
                           maxLength={160}
                         />
                         <p className="mt-1 text-[10px] leading-snug text-slate-500">
-                          Text guests see in the browser tab (e.g. instead of &ldquo;hofros - Booking Platform&rdquo;).
+                          Text guests see in the browser tab (e.g. instead of &ldquo;Hofros | Hotel Management Platform&rdquo;).
                           Leave blank to use business name + &ldquo;· Book direct&rdquo;.
                         </p>
                       </label>

@@ -26,21 +26,175 @@ function formatRelativeTime(iso) {
   return `${day} day${day === 1 ? '' : 's'} ago`
 }
 
-const TINT_STYLES = {
-  rose: 'border-rose-100 bg-gradient-to-br from-rose-50/90 to-white',
-  blue: 'border-sky-100 bg-gradient-to-br from-sky-50/90 to-white',
-  yellow: 'border-amber-100 bg-gradient-to-br from-amber-50/95 via-yellow-50/80 to-white',
-  slate: 'border-slate-200 bg-gradient-to-br from-slate-100/90 to-slate-50/80',
-  emerald: 'border-emerald-100 bg-gradient-to-br from-emerald-50/90 to-white',
-  direct: 'border-blue-200 bg-gradient-to-br from-[#fffbeb] via-white to-sky-50/95',
+const PORTAL_DISPLAY_ORDER = [
+  'direct_website',
+  'ticketoc',
+  'airbnb',
+  'agoda',
+  'tripadvisor',
+  'booking_com',
+]
+
+const PORTAL_BRANDS = {
+  direct_website: {
+    tint: 'border-[#d7e4f7] bg-white',
+    accent: '#0f3f73',
+    bannerColor: '#0f3f73',
+    logoBg: 'bg-white/15',
+    logoSrc: null,
+    monogram: 'DW',
+  },
+  ticketoc: {
+    tint: 'border-[#e8e8e8] bg-white',
+    accent: '#f5c518',
+    bannerColor: '#ffffff',
+    logoBg: 'bg-white',
+    logoSrc: '/portal-logos/ticketoc.png?v=3',
+    monogram: 'TI',
+    logoFit: 'contain',
+  },
+  airbnb: {
+    tint: 'border-[#ffd4d6] bg-white',
+    accent: '#FF5A5F',
+    bannerColor: '#FF5A5F',
+    logoBg: 'bg-[#FF5A5F]',
+    logoSrc: '/portal-logos/airbnb.svg?v=3',
+    monogram: 'AB',
+    logoFit: 'contain',
+  },
+  agoda: {
+    tint: 'border-[#e2e8f0] bg-white',
+    accent: '#334155',
+    bannerColor: '#ffffff',
+    logoBg: 'bg-white',
+    logoSrc: '/portal-logos/agoda.png?v=2',
+    monogram: 'AG',
+    logoFit: 'contain',
+  },
+  tripadvisor: {
+    tint: 'border-[#cfe4ff] bg-white',
+    accent: '#287DFA',
+    bannerColor: '#ffffff',
+    logoBg: 'bg-white',
+    logoSrc: '/portal-logos/trip-com.png?v=2',
+    monogram: 'TR',
+    logoFit: 'contain',
+  },
+  booking_com: {
+    tint: 'border-[#c9daf8] bg-white',
+    accent: '#003B95',
+    bannerColor: '#003B95',
+    logoBg: 'bg-[#003B95]',
+    logoSrc: '/portal-logos/booking-com.svg?v=3',
+    monogram: 'BO',
+    logoFit: 'contain',
+  },
 }
 
-function portalMonogram(name) {
-  const parts = name.replace(/[^a-zA-Z0-9 ]/g, '').split(/\s+/).filter(Boolean)
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase()
+function portalBrand(portalId) {
+  return PORTAL_BRANDS[portalId] || {
+    tint: 'border-slate-200 bg-white',
+    accent: '#0f3f73',
+    bannerColor: '#0f172a',
+    logoBg: 'bg-white/10',
+    logoSrc: null,
+    monogram: 'CH',
   }
-  return name.slice(0, 2).toUpperCase()
+}
+
+function PortalBrandBanner({ portalId, name }) {
+  const brand = portalBrand(portalId)
+  const fitClass = brand.logoFit === 'contain' ? 'object-contain object-center px-4 py-2' : 'object-cover object-center'
+  const isLightBanner = brand.bannerColor === '#ffffff' || brand.bannerColor === '#FFFFFF'
+
+  return (
+    <div
+      className={`relative h-14 w-full shrink-0 overflow-hidden ${isLightBanner ? 'border-b border-slate-100' : ''}`}
+      style={{ backgroundColor: brand.bannerColor }}
+      aria-hidden="true"
+    >
+      {brand.logoSrc ? (
+        <img
+          src={brand.logoSrc}
+          alt=""
+          className={`absolute inset-0 h-full w-full ${fitClass}`}
+          style={{ backgroundColor: brand.bannerColor }}
+        />
+      ) : (
+        <div className="relative z-[1] flex h-full w-full items-center justify-center px-4">
+          <div className="text-center">
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/70">Hofros</p>
+            <p className="text-sm font-black tracking-tight text-white">{name || 'Direct Website'}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PortalBrandMark({ portalId, name }) {
+  const brand = portalBrand(portalId)
+
+  return (
+    <div
+      className={`h-9 w-14 shrink-0 overflow-hidden rounded-lg border border-black/5 shadow-sm ${brand.logoBg || 'bg-white'}`}
+      aria-hidden="true"
+    >
+      {brand.logoSrc ? (
+        <img
+          src={brand.logoSrc}
+          alt=""
+          className="h-full w-full object-contain p-1"
+          style={{ backgroundColor: brand.bannerColor }}
+        />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center text-[10px] font-black tracking-wide text-slate-600">
+          {brand.monogram || name?.slice(0, 2)?.toUpperCase() || 'CH'}
+        </span>
+      )}
+    </div>
+  )
+}
+
+function PortalStatus({ status }) {
+  if (status === 'Connected') {
+    return (
+      <>
+        <CheckIcon className="h-4 w-4 text-emerald-600" />
+        <span className="text-emerald-700">Connected</span>
+      </>
+    )
+  }
+  if (status === 'Sync issue') {
+    return (
+      <>
+        <WarningIcon className="h-4 w-4 text-amber-600" />
+        <span className="text-amber-700">Sync issue</span>
+      </>
+    )
+  }
+  if (status === 'Testing') {
+    return (
+      <>
+        <BeakerIcon className="h-4 w-4 text-blue-600" />
+        <span className="text-blue-800">Testing</span>
+      </>
+    )
+  }
+  if (status === 'Live and connected') {
+    return (
+      <>
+        <CheckIcon className="h-4 w-4 text-emerald-600" />
+        <span className="text-emerald-700">Live and connected</span>
+      </>
+    )
+  }
+  return (
+    <>
+      <XSmallIcon className="h-4 w-4 text-slate-400" />
+      <span className="text-slate-500">Not connected</span>
+    </>
+  )
 }
 
 function PlusIcon() {
@@ -187,6 +341,16 @@ function portalKey(channel) {
   return channel?.id ?? channel?.uuid
 }
 
+function sortChannels(list) {
+  return [...list].sort((a, b) => {
+    const ai = PORTAL_DISPLAY_ORDER.indexOf(portalKey(a))
+    const bi = PORTAL_DISPLAY_ORDER.indexOf(portalKey(b))
+    const ao = ai === -1 ? PORTAL_DISPLAY_ORDER.length : ai
+    const bo = bi === -1 ? PORTAL_DISPLAY_ORDER.length : bi
+    return ao - bo
+  })
+}
+
 function disconnectedPrimaryLabel(channel) {
   return channel.disconnectedActionLabel || 'Connect'
 }
@@ -224,7 +388,7 @@ function BookingPortalsPage() {
       if (!mountedRef.current) {
         return
       }
-      setChannels(Array.isArray(data.channels) ? data.channels : [])
+      setChannels(sortChannels(Array.isArray(data.channels) ? data.channels : []))
       setSummary({
         connectedChannels: data.summary?.connectedChannels ?? 0,
         totalListings: data.summary?.totalListings ?? 0,
@@ -318,23 +482,33 @@ function BookingPortalsPage() {
       navigate('/direct-website-builder')
       return
     }
+    if (kind === 'open_ticketoc_connect' || portalKey(channel) === 'ticketoc') {
+      setAddOpen(false)
+      navigate('/ticketoc-connect')
+      return
+    }
+    if (kind === 'open_ota_connect') {
+      setAddOpen(false)
+      navigate(`/ota-connect/${portalKey(channel)}`)
+      return
+    }
     void handleConnect(channel)
   }
 
   return (
-    <div className="flex min-h-full w-full min-w-0 flex-col bg-white">
-      <div className="border-b border-amber-100/80 bg-gradient-to-r from-white via-[#fffbeb] to-[#f0f7ff] px-4 py-6 md:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-black tracking-tight text-[#0f3f73] md:text-3xl">Booking Portals</h1>
-            <p className="mt-1 max-w-xl text-sm text-slate-600">
+    <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden bg-white">
+      <div className="shrink-0 border-b border-amber-100/80 bg-gradient-to-r from-white via-[#fffbeb] to-[#f0f7ff] px-4 py-3 md:px-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-black tracking-tight text-[#0f3f73] md:text-2xl">Booking Portals</h1>
+            <p className="mt-0.5 max-w-xl truncate text-xs text-slate-600 sm:text-sm">
               Manage your channel connections and sync settings across OTAs and your direct site.
             </p>
           </div>
           <button
             type="button"
             onClick={openAddChannel}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-blue-600/25 transition hover:bg-blue-700"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-blue-600/25 transition hover:bg-blue-700"
           >
             <PlusIcon />
             Add Channel
@@ -342,10 +516,10 @@ function BookingPortalsPage() {
         </div>
       </div>
 
-      <div className="px-4 py-6 md:px-8">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-3 md:px-6">
         {banner && (
           <div
-            className={`mb-4 rounded-xl border px-4 py-3 text-sm font-medium ${
+            className={`mb-2 shrink-0 rounded-xl border px-3 py-2 text-sm font-medium ${
               banner.type === 'ok'
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
                 : 'border-rose-200 bg-rose-50 text-rose-900'
@@ -356,172 +530,153 @@ function BookingPortalsPage() {
         )}
 
         {error && (
-          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">{error}</div>
+          <div className="mb-2 shrink-0 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">{error}</div>
         )}
 
         {loading ? (
           <p className="text-sm text-slate-500">Loading channels…</p>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <article className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm shadow-blue-900/5">
-                <p className="text-3xl font-black text-emerald-600">{summary.connectedChannels}</p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Connected channels</p>
+            <div className="grid shrink-0 gap-2.5 sm:grid-cols-3">
+              <article className="rounded-xl border border-blue-100 bg-white px-3 py-2.5 shadow-sm shadow-blue-900/5">
+                <p className="text-2xl font-black leading-none text-emerald-600">{summary.connectedChannels}</p>
+                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Connected channels</p>
               </article>
-              <article className="rounded-2xl border border-amber-100 bg-white p-4 shadow-sm shadow-amber-900/5">
-                <p className="text-3xl font-black text-blue-600">{summary.totalListings}</p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Total listings</p>
+              <article className="rounded-xl border border-amber-100 bg-white px-3 py-2.5 shadow-sm shadow-amber-900/5">
+                <p className="text-2xl font-black leading-none text-blue-600">{summary.totalListings}</p>
+                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Total listings</p>
               </article>
-              <article className="rounded-2xl border border-amber-200/80 bg-white p-4 shadow-sm">
-                <p className="text-3xl font-black text-amber-600">{summary.syncIssues}</p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Sync issues</p>
+              <article className="rounded-xl border border-amber-200/80 bg-white px-3 py-2.5 shadow-sm">
+                <p className="text-2xl font-black leading-none text-amber-600">{summary.syncIssues}</p>
+                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Sync issues</p>
               </article>
             </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-3 grid min-h-0 flex-1 content-start grid-cols-1 gap-3 overflow-auto sm:grid-cols-2 xl:grid-cols-3">
               {channels.map((ch) => {
-                const tint = TINT_STYLES[ch.tint] || TINT_STYLES.slate
                 const disconnected = !ch.isConnected
                 const pk = portalKey(ch)
                 const busy = busyId === pk
+                const brand = portalBrand(pk)
 
                 return (
                   <article
                     key={pk}
-                    className={`flex flex-col rounded-2xl border p-4 shadow-sm ${tint} ${
-                      disconnected ? 'opacity-95' : ''
-                    }`}
+                    className={`group flex flex-col overflow-hidden rounded-xl border shadow-[0_6px_18px_rgba(15,23,42,0.045)] transition duration-200 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)] ${brand.tint}`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xs font-black ${
-                          disconnected ? 'bg-slate-200 text-slate-600' : 'bg-white text-[#0f3f73] shadow-sm'
-                        }`}
-                      >
-                        {portalMonogram(ch.name)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-base font-black text-[#0f3f73]">{ch.name}</p>
-                        <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold">
-                          {ch.status === 'Connected' && (
-                            <>
-                              <CheckIcon className="h-4 w-4 text-emerald-600" />
-                              <span className="text-emerald-700">Connected</span>
-                            </>
-                          )}
-                          {ch.status === 'Sync issue' && (
-                            <>
-                              <WarningIcon className="h-4 w-4 text-amber-600" />
-                              <span className="text-amber-700">Sync issue</span>
-                            </>
-                          )}
-                          {ch.status === 'Not connected' && (
-                            <>
-                              <XSmallIcon className="h-4 w-4 text-slate-400" />
-                              <span className="text-slate-500">Not connected</span>
-                            </>
-                          )}
-                          {ch.status === 'Testing' && (
-                            <>
-                              <BeakerIcon className="h-4 w-4 text-blue-600" />
-                              <span className="text-blue-800">Testing</span>
-                            </>
-                          )}
-                          {ch.status === 'Live and connected' && (
-                            <>
-                              <CheckIcon className="h-4 w-4 text-emerald-600" />
-                              <span className="text-emerald-700">Live and connected</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      {!disconnected ? (
-                        <Toggle
-                          checked={ch.isActive}
-                          disabled={busy}
-                          onChange={() => handleToggleActive(ch)}
-                          label={`${ch.name} active`}
-                        />
-                      ) : (
-                        <span className="w-12 shrink-0" aria-hidden="true" />
-                      )}
-                    </div>
+                    <PortalBrandBanner portalId={pk} name={ch.name} />
 
-                    {disconnected ? (
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => handleDisconnectedPrimary(ch)}
-                        className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-white transition disabled:opacity-60 ${
-                          isDirectPortalDisconnected(ch)
-                            ? 'border border-amber-200/80 bg-gradient-to-r from-blue-600 to-blue-700 shadow-sm shadow-blue-900/15 hover:from-blue-700 hover:to-blue-800'
-                            : 'bg-blue-600 hover:bg-blue-700'
-                        }`}
-                      >
-                        {isDirectPortalDisconnected(ch) ? (
-                          <BuildWebsiteIcon className="h-4 w-4 shrink-0" />
-                        ) : (
-                          <LinkIcon className="h-4 w-4 shrink-0" />
-                        )}
-                        <span className="text-center leading-snug">{disconnectedPrimaryLabel(ch)}</span>
-                      </button>
-                    ) : (
-                      <>
-                        <div className="mt-4 grid grid-cols-2 gap-2">
-                          <div className="rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-center shadow-sm">
-                            <p className="text-lg font-black text-[#0f3f73]">{ch.listingCount}</p>
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Listings</p>
-                          </div>
-                          <div className="rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-center shadow-sm">
-                            <p className="text-sm font-bold text-[#0f3f73]">{formatRelativeTime(ch.lastSync)}</p>
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Last sync</p>
+                    <div className="flex flex-col gap-2.5 p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black tracking-tight text-[#0f3f73]">{ch.name}</p>
+                          <div className="mt-0.5 flex items-center gap-1.5 text-[11px] font-semibold">
+                            <PortalStatus status={ch.status} />
                           </div>
                         </div>
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        {!disconnected ? (
+                          <Toggle
+                            checked={ch.isActive}
+                            disabled={busy}
+                            onChange={() => handleToggleActive(ch)}
+                            label={`${ch.name} active`}
+                          />
+                        ) : null}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className="rounded-lg border border-slate-100 bg-slate-50/90 px-2 py-1.5 text-center">
+                          <p className="text-sm font-black leading-none text-[#0f3f73]">{disconnected ? '—' : ch.listingCount}</p>
+                          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-500">Listings</p>
+                        </div>
+                        <div className="rounded-lg border border-slate-100 bg-slate-50/90 px-2 py-1.5 text-center">
+                          <p className="text-[11px] font-bold leading-none text-[#0f3f73]">
+                            {disconnected ? '—' : formatRelativeTime(ch.lastSync)}
+                          </p>
+                          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-500">Last sync</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        {disconnected ? (
                           <button
                             type="button"
                             disabled={busy}
-                            onClick={() => handleSync(ch)}
-                            className="inline-flex min-h-10 min-w-[8.5rem] flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-[#0f3f73] shadow-sm transition hover:border-blue-200 hover:bg-blue-50/60 disabled:opacity-60"
+                            onClick={() => handleDisconnectedPrimary(ch)}
+                            className={`inline-flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold text-white shadow-sm transition hover:brightness-[1.03] disabled:opacity-60 ${
+                              isDirectPortalDisconnected(ch)
+                                ? 'bg-gradient-to-r from-blue-600 to-blue-700'
+                                : 'bg-blue-600 hover:bg-blue-700'
+                            }`}
                           >
-                            <RefreshIcon className="h-4 w-4 shrink-0 text-blue-600" />
-                            Sync now
+                            {isDirectPortalDisconnected(ch) ? (
+                              <BuildWebsiteIcon className="h-3.5 w-3.5 shrink-0" />
+                            ) : (
+                              <LinkIcon className="h-3.5 w-3.5 shrink-0" />
+                            )}
+                            <span className="text-center leading-snug">{disconnectedPrimaryLabel(ch)}</span>
                           </button>
-                          {pk === 'direct_website' && ch.guestPortalLive ? (
-                            <a
-                              href={typeof ch.visitUrl === 'string' && ch.visitUrl ? ch.visitUrl : '#'}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`inline-flex min-h-10 min-w-[8.5rem] flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-2.5 text-sm font-bold text-emerald-800 shadow-sm transition hover:border-emerald-300 hover:from-emerald-100/80 hover:to-white ${
-                                typeof ch.visitUrl === 'string' && ch.visitUrl ? '' : 'pointer-events-none opacity-60'
-                              }`}
-                              aria-label={`Visit ${ch.name}`}
-                            >
-                              <ExternalLinkIcon className="h-4 w-4 shrink-0 text-emerald-600" />
-                              Visit site
-                            </a>
-                          ) : null}
-                          {pk === 'direct_website' && ch.guestPortalLive ? (
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5">
                             <button
                               type="button"
-                              onClick={() => navigate('/direct-website-builder')}
-                              className="inline-flex min-h-10 min-w-[8.5rem] flex-1 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-gradient-to-b from-blue-50 to-white py-2.5 text-sm font-bold text-[#0f3f73] shadow-sm transition hover:border-blue-300 hover:from-blue-100/80 hover:to-white"
+                              disabled={busy}
+                              onClick={() => handleSync(ch)}
+                              className="inline-flex min-h-8 min-w-[6.5rem] flex-1 items-center justify-center gap-1 rounded-lg border border-slate-200/90 bg-white px-2 py-1.5 text-[11px] font-bold text-[#0f3f73] shadow-sm transition hover:border-blue-200 hover:bg-blue-50/60 disabled:opacity-60"
                             >
-                              <BuildWebsiteIcon className="h-4 w-4 shrink-0 text-blue-600" />
-                              Website Builder
+                              <RefreshIcon className="h-3.5 w-3.5 shrink-0 text-blue-600" />
+                              Sync now
                             </button>
-                          ) : null}
-                          <button
-                            type="button"
-                            onClick={() => setSettingsChannel(ch)}
-                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-amber-200 hover:bg-amber-50/50 hover:text-[#0f3f73]"
-                            aria-label={`${ch.name} settings`}
-                          >
-                            <GearIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </>
-                    )}
+                            {pk === 'direct_website' && ch.guestPortalLive ? (
+                              <a
+                                href={typeof ch.visitUrl === 'string' && ch.visitUrl ? ch.visitUrl : '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`inline-flex min-h-8 min-w-[6.5rem] flex-1 items-center justify-center gap-1 rounded-lg border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white px-2 py-1.5 text-[11px] font-bold text-emerald-800 shadow-sm transition hover:border-emerald-300 hover:from-emerald-100/80 hover:to-white ${
+                                  typeof ch.visitUrl === 'string' && ch.visitUrl ? '' : 'pointer-events-none opacity-60'
+                                }`}
+                                aria-label={`Visit ${ch.name}`}
+                              >
+                                <ExternalLinkIcon className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                                Visit site
+                              </a>
+                            ) : null}
+                            {pk === 'direct_website' && ch.guestPortalLive ? (
+                              <button
+                                type="button"
+                                onClick={() => navigate('/direct-website-builder')}
+                                className="inline-flex min-h-8 min-w-[6.5rem] flex-1 items-center justify-center gap-1 rounded-lg border border-blue-200 bg-gradient-to-b from-blue-50 to-white px-2 py-1.5 text-[11px] font-bold text-[#0f3f73] shadow-sm transition hover:border-blue-300 hover:from-blue-100/80 hover:to-white"
+                              >
+                                <BuildWebsiteIcon className="h-3.5 w-3.5 shrink-0 text-blue-600" />
+                                Website Builder
+                              </button>
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (pk === 'ticketoc') {
+                                  navigate('/ticketoc-connect')
+                                  return
+                                }
+                                if (['booking_com', 'airbnb', 'agoda', 'tripadvisor'].includes(pk)) {
+                                  navigate(`/ota-connect/${pk}`)
+                                  return
+                                }
+                                if (pk === 'direct_website') {
+                                  navigate('/direct-website-builder')
+                                  return
+                                }
+                                setSettingsChannel(ch)
+                              }}
+                              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-amber-200 hover:bg-amber-50/50 hover:text-[#0f3f73]"
+                              aria-label={`${ch.name} settings`}
+                            >
+                              <GearIcon className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </article>
                 )
               })}
@@ -543,7 +698,10 @@ function BookingPortalsPage() {
                   key={portalKey(ch)}
                   className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-[#fbfdff] px-3 py-2"
                 >
-                  <span className="text-sm font-bold text-[#0f3f73]">{ch.name}</span>
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <PortalBrandMark portalId={portalKey(ch)} name={ch.name} />
+                    <span className="truncate text-sm font-bold text-[#0f3f73]">{ch.name}</span>
+                  </div>
                   <button
                     type="button"
                     disabled={busyId === portalKey(ch)}

@@ -232,6 +232,7 @@ function DirectPortalBookPage() {
   const primaryColor =
     typeof payload?.primaryColor === 'string' && payload.primaryColor.trim() ? payload.primaryColor.trim() : '#0d9488'
   const title = payload?.merchantName?.trim() || fallbackLabel
+  const onlineCheckout = Boolean(payload?.paymentGateway?.onlineCheckout)
   const units = useMemo(() => (Array.isArray(payload?.units) ? payload.units : []), [payload])
 
   const unit = useMemo(() => {
@@ -276,6 +277,9 @@ function DirectPortalBookPage() {
           setStayQuote({
             subtotalPrice: data.subtotalPrice,
             discountAmount: data.discountAmount,
+            promotionDiscountAmount: data.promotionDiscountAmount,
+            promotionName: typeof data.promotionName === 'string' ? data.promotionName : null,
+            promoCodeDiscountAmount: data.promoCodeDiscountAmount,
             totalPrice: data.totalPrice,
             nights: data.nights,
             currency: data.currency,
@@ -477,6 +481,18 @@ function DirectPortalBookPage() {
           promoCode: promoCode.trim() ? promoCode.trim().toUpperCase() : null,
         }),
       })
+      // Always open the checkout page when the merchant has an online gateway (or API asks for payment).
+      if (
+        data?.portalBatchId &&
+        (data?.paymentRequired || onlineCheckout || (typeof data?.checkoutPath === 'string' && data.checkoutPath))
+      ) {
+        const checkoutPath =
+          typeof data.checkoutPath === 'string' && data.checkoutPath.startsWith('/')
+            ? data.checkoutPath
+            : `/${slug}/directportal/checkout/${encodeURIComponent(data.portalBatchId)}`
+        navigate(checkoutPath)
+        return
+      }
       const refs = Array.isArray(data?.references)
         ? data.references.filter((r) => typeof r === 'string' && r.trim())
         : typeof data?.reference === 'string' && data.reference.trim()
@@ -496,6 +512,7 @@ function DirectPortalBookPage() {
               ? unit.currency
               : 'PHP',
         unitCount: typeof data?.unitCount === 'number' ? data.unitCount : cur,
+        paymentError: typeof data?.paymentError === 'string' ? data.paymentError : null,
       })
       setSubmitted(true)
     } catch (err) {
@@ -634,6 +651,12 @@ function DirectPortalBookPage() {
             <span className="font-bold text-slate-800">{guestEmail.trim()}</span> to confirm your stay for{' '}
             <span className="font-bold text-slate-800">{guestPortalUnitListingTitle(unit)}</span>.
           </p>
+          {submissionReceipt?.paymentError ? (
+            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-left text-xs font-semibold text-amber-900">
+              Online payment could not be started ({submissionReceipt.paymentError}). Your booking request is still
+              saved — the host will help you complete payment.
+            </p>
+          ) : null}
           {submissionReceipt?.references?.length > 0 ? (
             <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs font-semibold text-slate-700">
               <p className="font-bold text-slate-800">
@@ -877,7 +900,7 @@ function DirectPortalBookPage() {
                   {typeof stayQuote.subtotalPrice === 'number' && typeof stayQuote.discountAmount === 'number' && stayQuote.discountAmount > 0 ? (
                     <>
                       <p className="text-xs font-semibold text-slate-600">
-                        Subtotal:{' '}
+                        Accommodation price:{' '}
                         <span className="tabular-nums">
                           {guestPortalCurrencySymbol(stayQuote.currency)}
                           {Number(stayQuote.subtotalPrice).toLocaleString(undefined, {
@@ -886,13 +909,32 @@ function DirectPortalBookPage() {
                           })}
                         </span>
                       </p>
-                      <p className="text-xs font-semibold text-emerald-700">
-                        Promo {stayQuote.promoCode ?? ''}: -{guestPortalCurrencySymbol(stayQuote.currency)}
-                        {Number(stayQuote.discountAmount).toLocaleString(undefined, {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
+                      {typeof stayQuote.promotionDiscountAmount === 'number' && stayQuote.promotionDiscountAmount > 0 ? (
+                        <p className="text-xs font-semibold text-emerald-700">
+                          {stayQuote.promotionName || 'Promotion'}: -{guestPortalCurrencySymbol(stayQuote.currency)}
+                          {Number(stayQuote.promotionDiscountAmount).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      ) : null}
+                      {typeof stayQuote.promoCodeDiscountAmount === 'number' && stayQuote.promoCodeDiscountAmount > 0 ? (
+                        <p className="text-xs font-semibold text-emerald-700">
+                          Promo {stayQuote.promoCode ?? ''}: -{guestPortalCurrencySymbol(stayQuote.currency)}
+                          {Number(stayQuote.promoCodeDiscountAmount).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      ) : stayQuote.promoCode && !(typeof stayQuote.promotionDiscountAmount === 'number' && stayQuote.promotionDiscountAmount > 0) ? (
+                        <p className="text-xs font-semibold text-emerald-700">
+                          Promo {stayQuote.promoCode}: -{guestPortalCurrencySymbol(stayQuote.currency)}
+                          {Number(stayQuote.discountAmount).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      ) : null}
                     </>
                   ) : null}
                   <p className="font-bold text-slate-800">
@@ -990,7 +1032,13 @@ function DirectPortalBookPage() {
                 className="w-full rounded-xl py-3 text-sm font-black text-white shadow-md transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-[9rem]"
                 style={{ backgroundColor: primaryColor }}
               >
-                {submitting ? 'Submitting…' : 'Confirm'}
+                {submitting
+                  ? onlineCheckout
+                    ? 'Going to checkout…'
+                    : 'Submitting…'
+                  : onlineCheckout
+                    ? 'Continue to checkout'
+                    : 'Confirm'}
               </button>
             </div>
           </form>

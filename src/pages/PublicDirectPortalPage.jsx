@@ -87,7 +87,7 @@ function PublicDirectPortalPage() {
 
   const guestDocumentTitle = useMemo(() => {
     if (!payload) {
-      return 'hofros - Booking Platform'
+      return 'Hofros | Hotel Management Platform'
     }
     const custom = typeof payload.pageTitle === 'string' ? payload.pageTitle.trim() : ''
     if (custom) {
