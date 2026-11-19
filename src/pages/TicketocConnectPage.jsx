@@ -126,7 +126,7 @@ function TicketocConnectPage() {
             <div>
               <h1 className="text-2xl font-black text-[#0f3f73]">Ticketoc integration</h1>
               <p className="mt-1 text-sm text-slate-600">
-                Connect your Ticketoc merchant account so Hofros can aggregate stays and bookings from Ticketoc.
+                Sign in with your Ticketoc merchant email and password. Hofros sends this account&apos;s rooms and accommodations to that organization.
               </p>
               <p className="mt-2 text-xs font-semibold text-slate-500">
                 {connected ? (
@@ -157,6 +157,11 @@ function TicketocConnectPage() {
               Partner integrations.
             </p>
           ) : null}
+          {!loading && apiConfigured && settings?.stayConnected === false ? (
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+              Ticketoc Stay is not connected yet. Ask a Hofros admin to paste the partner key and click Connect Stay.
+            </p>
+          ) : null}
 
           {!loading ? (
             <>
@@ -165,7 +170,7 @@ function TicketocConnectPage() {
                   <p className="text-lg font-black leading-none text-[#0f3f73]">
                     {connected ? settings?.listingCount ?? 0 : '—'}
                   </p>
-                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Listings</p>
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Rooms</p>
                 </div>
                 <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-center">
                   <p className="text-sm font-bold leading-none text-[#0f3f73]">
@@ -212,7 +217,7 @@ function TicketocConnectPage() {
                   <p className="font-semibold">Test passed</p>
                   <p className="mt-1 text-xs">
                     Organization: {testResult.organizationName || testResult.organizationUuid || '—'}
-                    {typeof testResult.listingCount === 'number' ? ` · ${testResult.listingCount} stays` : ''}
+                    {typeof testResult.listingCount === 'number' ? ` · ${testResult.listingCount} rooms ready to capture` : ''}
                   </p>
                 </div>
               ) : null}
@@ -224,7 +229,7 @@ function TicketocConnectPage() {
                     {settings?.organizationName || settings?.organizationUuid || '—'}
                   </p>
                   <p className="mt-1">
-                    <span className="font-semibold">Listings:</span> {settings?.listingCount ?? 0}
+                    <span className="font-semibold">Rooms:</span> {settings?.listingCount ?? 0}
                     {settings?.lastSync ? ` · Last sync ${new Date(settings.lastSync).toLocaleString()}` : ''}
                   </p>
                   {settings?.lastError ? (
