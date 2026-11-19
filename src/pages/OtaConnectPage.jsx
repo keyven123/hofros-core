@@ -56,8 +56,12 @@ function OtaConnectPage() {
   }, [portalKey])
 
   useEffect(() => {
+    if (portalKey === 'airbnb') {
+      navigate('/airbnb-connect', { replace: true })
+      return
+    }
     void load()
-  }, [load])
+  }, [load, navigate, portalKey])
 
   const canSubmit = useMemo(() => {
     if (!apiConfigured || !fields.length) return false

@@ -487,6 +487,11 @@ function BookingPortalsPage() {
       navigate('/ticketoc-connect')
       return
     }
+    if (kind === 'open_airbnb_connect' || portalKey(channel) === 'airbnb') {
+      setAddOpen(false)
+      navigate('/airbnb-connect')
+      return
+    }
     if (kind === 'open_ota_connect') {
       setAddOpen(false)
       navigate(`/ota-connect/${portalKey(channel)}`)
@@ -651,6 +656,15 @@ function BookingPortalsPage() {
                                 Website Builder
                               </button>
                             ) : null}
+                            {pk === 'airbnb' ? (
+                              <button
+                                type="button"
+                                onClick={() => navigate('/ota-connect/airbnb/accommodations')}
+                                className="inline-flex min-h-8 min-w-[6.5rem] flex-1 items-center justify-center gap-1 rounded-lg border border-rose-200 bg-gradient-to-b from-rose-50 to-white px-2 py-1.5 text-[11px] font-bold text-rose-800 shadow-sm transition hover:border-rose-300 hover:from-rose-100/80 hover:to-white"
+                              >
+                                Map rooms
+                              </button>
+                            ) : null}
                             <button
                               type="button"
                               onClick={() => {
@@ -658,7 +672,11 @@ function BookingPortalsPage() {
                                   navigate('/ticketoc-connect')
                                   return
                                 }
-                                if (['booking_com', 'airbnb', 'agoda', 'tripadvisor'].includes(pk)) {
+                                if (pk === 'airbnb') {
+                                  navigate('/airbnb-connect')
+                                  return
+                                }
+                                if (['booking_com', 'agoda', 'tripadvisor'].includes(pk)) {
                                   navigate(`/ota-connect/${pk}`)
                                   return
                                 }

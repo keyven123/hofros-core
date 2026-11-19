@@ -35,7 +35,7 @@ function AirbnbAccommodationsPage() {
     } catch (requestError) {
       setError(requestError?.message || 'Could not load Airbnb accommodations.')
       if (String(requestError?.message || '').toLowerCase().includes('connect')) {
-        setTimeout(() => navigate('/ota-connect/airbnb'), 800)
+        setTimeout(() => navigate('/airbnb-connect'), 800)
       }
     } finally {
       setLoading(false)
@@ -400,11 +400,11 @@ function AirbnbAccommodationsPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate('/ota-connect/airbnb')}
-                  className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100"
-                >
-                  Airbnb connection
-                </button>
+              onClick={() => navigate('/airbnb-connect')}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100"
+            >
+              Airbnb connection
+            </button>
               </div>
             </section>
           ) : null}

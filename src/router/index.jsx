@@ -35,6 +35,7 @@ import PaymentGatewaysPage from '../pages/PaymentGatewaysPage'
 import DirectWebsiteBuilderPage from '../pages/DirectWebsiteBuilderPage'
 import DirectPortalDesignPage from '../pages/DirectPortalDesignPage'
 import TicketocConnectPage from '../pages/TicketocConnectPage'
+import AirbnbConnectPage from '../pages/AirbnbConnectPage'
 import OtaConnectPage from '../pages/OtaConnectPage'
 import AirbnbAccommodationsPage from '../pages/AirbnbAccommodationsPage'
 import PublicDirectPortalPage from '../pages/PublicDirectPortalPage'
@@ -186,6 +187,7 @@ function AppRoutes() {
         <Route path="/direct-website-builder" element={<DirectWebsiteBuilderPage />} />
         <Route path="/direct-portal-design" element={<DirectPortalDesignPage />} />
         <Route path="/ticketoc-connect" element={<TicketocConnectPage />} />
+        <Route path="/airbnb-connect" element={<AirbnbConnectPage />} />
         <Route path="/ota-connect/airbnb/accommodations" element={<AirbnbAccommodationsPage />} />
         <Route path="/ota-connect/:portalKey" element={<OtaConnectPage />} />
         <Route path="/configuration" element={<ConfigurationPage />} />

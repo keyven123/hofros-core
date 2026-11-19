@@ -160,6 +160,21 @@ function TicketocConnectPage() {
 
           {!loading ? (
             <>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-center">
+                  <p className="text-lg font-black leading-none text-[#0f3f73]">
+                    {connected ? settings?.listingCount ?? 0 : '—'}
+                  </p>
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Listings</p>
+                </div>
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-center">
+                  <p className="text-sm font-bold leading-none text-[#0f3f73]">
+                    {connected && settings?.lastSync ? new Date(settings.lastSync).toLocaleString() : '—'}
+                  </p>
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Last sync</p>
+                </div>
+              </div>
+
               <label className="block">
                 <span className="mb-1 block text-sm font-semibold text-slate-800">Merchant email</span>
                 <input
